@@ -1,0 +1,313 @@
+% FitzHugh-Nagumo interpolation experiment
+clear 
+close all
+
+% Flags
+
+createsnapshots = 0; % create new snapshots? 
+
+visuals = 0; % show phase-space plots of the full system?
+svd_plots = 1; % show svd and RIC plots for the snapshot data?
+pmor = 0; % perform parametric model order reduction
+
+
+Mat = matrix_tools(); % Import various Grassmann functions. 
+
+
+%% Snapshots
+% Create plots of the system
+points = [0.03 0.04 0.05 0.06 0.07];
+
+[~,n] = size(points);
+Data = cell(1,n);
+if createsnapshots
+    for i = 1:n
+        Data{i} = FN_full_model(points(i));
+    end
+
+    % Store data 
+    %eval(['save snapshots_FN_model/','data','.mat Data']);
+end
+
+Data = load('snapshots_FN_model/data_highres.mat');
+Data = Data.Data; 
+% 
+% for i = 1:n
+%     rank(Data{i})
+% end
+% 
+
+%% SVD and RIC plots
+% Create plots showing the decay of the singular values and relative
+% information content plots.
+if svd_plots
+    f = figure;
+    for i = 1:n
+        S = svd(Data{i});
+        
+        semilogy(S(1:100)/sum(S),'x');
+        hold on
+    end
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Position of singular value in \Sigma")
+    title("Singular values full snapshot matrices")
+    
+    % RIC curve
+    M = 20;
+    f = figure;
+    for i = 1:5
+        information = zeros(1,M);
+        S = svd(Data{i});
+        for j = 2:M+1
+            information(j) = sum(S(1:j-1)) / sum(S);
+        end
+        plot(0:M,information,'LineWidth',2)
+        hold on
+    end
+    
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Number of singular values")
+    ylabel("RIC")
+    title("RIC curves for the full snapshot matrices")
+    
+    % Select u and v component
+    % u component 
+    f = figure;
+    f.Position = [40,800,1200*5/6,650*5/6];
+    D = Data{1};
+    [nx,nt] = size(D);
+    subplot(1,2,1)
+    for i = 1:n
+        D = Data{i};
+        S = svd(D(1:nx/2,1:nt));
+        
+        semilogy(S(1:100)/sum(S),'x');
+        hold on
+    end
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Position of singular value in \Sigma")
+    title("u-component")
+    
+    % v component 
+    %f = figure;
+    subplot(1,2,2)
+    for i = 1:n
+        D = Data{i};
+        S = svd(D(nx/2+1:end,1:nt));
+        
+        semilogy(S(1:100)/sum(S),'x');
+        hold on
+    end
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Position of singular value in \Sigma")
+    title("v-component")
+    
+    sgtitle("Component-wise singular values")
+    
+    f = figure
+    f.Position = [40,800,1200*5/6,650*5/6];
+    
+    subplot(1,2,1)
+    % RIC curves
+    % u-component
+    M = 20;
+    for i = 1:5
+        information = zeros(1,M);
+        Y = Data{i};
+        S = svd(Y(1:nx/2,:));
+        for j = 2:M+1
+            information(j) = sum(S(1:j-1)) / sum(S);
+        end
+        plot(0:M,information,'LineWidth',2)
+        hold on
+    end
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Number of singular values")
+    ylabel("RIC")
+    title("u-component")
+    
+    subplot(1,2,2)
+    % v-component
+    M = 20;
+    for i = 1:5
+        information = zeros(1,M);
+        Y = Data{i};
+        S = svd(Y(nx/2+1:end,:));
+        for j = 2:M+1
+            information(j) = sum(S(1:j-1)) / sum(S);
+        end
+        plot(0:M,information,'LineWidth',2)
+        hold on
+    end
+    fontsize(f,15,"pixels")
+    legend("I_a = " + num2str(points(1)),"I_a = " + num2str(points(2)),"I_a = " + num2str(points(3)),...,
+        "I_a = " + num2str(points(4)),"I_a = " + num2str(points(5)))
+    xlabel("Number of singular values")
+    ylabel("RIC")
+    title("v-component")
+    
+    sgtitle("RIC curves for the full snapshot matrices")
+end
+
+%% Interpolation 
+
+% Perform parametric model order reduction of the FN system
+
+if pmor
+    % Generate the points on each of the two Grassmann manifolds 
+    p = 15;
+    Y = Data{1};
+    [nx,nt] = size(Y);
+    
+    Grassmann_points_u = cell(1,n);
+    Grassmann_points_v = cell(1,n);
+    for i = 1:n
+        Y = Data{i};
+    
+        [Uup,~,~] = svd(Y(1:nx/2,1:nt));
+        [Uvp,~,~] = svd(Y(nx/2+1:end,1:nt));
+        Grassmann_points_u{i} = Uup(:,1:p);
+        Grassmann_points_v{i} = Uvp(:,1:p);
+    end
+    % 
+    % for i = 1:n
+    %     Uu = Grassmann_points_u{i};
+    %     Uu = Uu(1:p,1:p);
+    %     cond(Uu)
+    % end
+    
+    % Interpolate in the tangent space via Lagrange
+    tangent_data_u = cell(1,n);
+    tangent_data_v = cell(1,n);
+    U = Grassmann_points_u{1};
+    W = Grassmann_points_v{1};
+    for i = 1:n
+        V = Grassmann_points_u{i};
+        Z = Grassmann_points_v{1};
+        tangent_data_u{i} = Mat.LogG(U,V); % Data is mapped to tangent space
+        tangent_data_v{i} = Mat.LogG(W,Z); % Data is mapped to tangent space
+    end
+    
+    % Friday: Test interpolated basis!
+    % Ia \in [0.03, 0.07]
+    Ia = 0.065;
+    norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
+    norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
+    Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
+    
+    % Compare full model with approximation
+    norm(FN_full_model(Ia) - Y,'fro')
+    
+            [k,l] = size(Y);
+            figure
+            for j = 1:3:l
+                plot(Y(j,:),Y(j + k/2,:),'r');
+                hold on
+            end
+            xlabel('u(x,t)')
+            ylabel('v(x,t)')
+            title("Phase space, I_a = " + num2str(Ia))
+end
+%% Visuals
+% Create plots of the system
+if visuals
+    for i = 1:n
+        Y = Data{i};
+        [k,l] = size(Y);
+        figure
+        for j = 1:3:l
+            plot(Y(j,:),Y(j + k/2,:),'r');
+            hold on
+        end
+        xlabel('u(x,t)')
+        ylabel('v(x,t)')
+        title("Phase space, I_a = " + num2str(points(i)))
+    end
+    
+    f = figure;
+    f.Position = [40,800,1200*5/6,650*5/6];
+    subplot(1,2,1)
+    %figure
+    i = 1;
+    Y = Data{i};
+    [k,l] = size(Y);
+    p1 = plot(Y(1,:),Y(1 + k/2,:),'Color',[0.8500 0.3250 0.0980],'LineWidth',2);
+    hold on
+    for j = 4:3:l
+        plot(Y(j,:),Y(j + k/2,:),'Color',[0.8500 0.3250 0.0980],'LineWidth',2);
+    end
+    
+    i = 3;
+    Y = Data{i};
+    [k,l] = size(Y);
+    p2 = plot(Y(1,:),Y(1 + k/2,:),'Color',[0.9290 0.6940 0.1250],'LineWidth',2);
+    hold on
+    for j = 4:3:l
+        plot(Y(j,:),Y(j + k/2,:),'Color',[0.9290 0.6940 0.1250],'LineWidth',2	);
+    end
+    
+    i = 5;
+    Y = Data{i};
+    [k,l] = size(Y);
+    p3 = plot(Y(1,:),Y(1 + k/2,:),'Color',[0.4940 0.1840 0.5560],'LineWidth',2);
+    hold on
+    for j = 4:3:l
+        plot(Y(j,:),Y(j + k/2,:),'Color',[0.4940 0.1840 0.5560],'LineWidth',2);
+    end
+    
+    xlabel('u(x,t)')
+    ylabel('v(x,t)')
+    title("Phase space, I_a = " + num2str(points(1))+ ', ' + num2str(points(3))+ ', '+ num2str(points(5))+ ', ' )
+    legend([p1,p2,p3],{"I_a = "+num2str(points(1)),"I_a = "+num2str(points(3)),"I_a = "+num2str(points(5))})
+    fontsize(f,15,"pixels")
+
+    %exportgraphics(f,'FN_full_three_phase.png','Resolution',300)
+
+
+    %f = figure;
+    subplot(1,2,2)
+
+    i = 1;
+    Y = Data{i};
+    
+    [nx,nt] = size(Y);
+    plot3(0*ones(1,nt),Y(1,:),Y(nx/2+1,:),'Color',[0.8500 0.3250 0.0980],'LineWidth',2)
+    hold on
+    x = 1/2^3:1/2^3:1;
+    for j = 1:8
+        plot3(x(j)*ones(1,nt),Y(128*j,:),Y(nx/2+128*j,:),'Color',[0.8500 0.3250 0.0980],'LineWidth',2);
+    end
+    xlabel('x')
+    ylabel('u(x,t)')
+    zlabel('v(x,t)')
+    title("Phase space, I_a = " + num2str(points(1)))
+
+    fontsize(f,15,"pixels")
+    exportgraphics(f,'FN_full.png','Resolution',300)
+end
+
+function interpol = LagrangeInt(x,xs,ys)
+    n = length(xs);
+    L = ones(1,n);
+    interpol = 0;
+    for j = 1:n
+        for i = 1:n
+            if i ~= j
+                L(j) = L(j)*(x - xs(i)) / (xs(j)-xs(i));
+            end
+        end
+    end
+    for i = 1:n
+        interpol = interpol + ys{i}*L(i);
+    end
+end
