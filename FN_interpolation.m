@@ -7,7 +7,7 @@ close all
 createsnapshots = 0; % create new snapshots? 
 
 visuals = 0; % show phase-space plots of the full system?
-svd_plots = 1; % show svd and RIC plots for the snapshot data?
+svd_plots = 0; % show svd and RIC plots for the snapshot data?
 pmor = 0; % perform parametric model order reduction
 
 
@@ -18,19 +18,35 @@ Mat = matrix_tools(); % Import various Grassmann functions.
 % Create plots of the system
 points = [0.03 0.04 0.05 0.06 0.07];
 
+
 [~,n] = size(points);
 Data = cell(1,n);
+derivData = cell(1,n);
 if createsnapshots
     for i = 1:n
         Data{i} = FN_full_model(points(i));
     end
 
     % Store data 
-    %eval(['save snapshots_FN_model/','data','.mat Data']);
+    %eval(['save snapshots_FN_model/','data','.mat Data']);'
+
+    h = 0.0001;
+    for i = 1:n
+        Ymh = FN_full_model(points(i)-h);
+        Y = Data{i};
+        Yph = FN_full_model(points(i)+h);
+        derivData{i} = (Yph - Ymh) / (2*h);
+    end
+    % Store derivative data 
+    %eval(['save snapshots_FN_model/','derivative_data','.mat Data']);
 end
 
+
 Data = load('snapshots_FN_model/data_highres.mat');
+d_Data = load('snapshots_FN_model/data_highres.mat');
+
 Data = Data.Data; 
+d_Data = d_Data.Data; 
 % 
 % for i = 1:n
 %     rank(Data{i})

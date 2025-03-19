@@ -67,7 +67,7 @@ end
 
 % figure
 % for j = 1:3:nx
-%     plot(Y(j,:),Y(j + nx,:));
+%     plot(Y(j,:),Y(j + nx,:),'r');
 %     hold on
 % end
 
