@@ -216,15 +216,16 @@ MatTools.dParamG = @dParametrizationGrassmann;
 
 %MatTools.dSVD = @dSVD;
     % Differentiate the truncated singular value decomposition
+    MatTools.dSVD = @dSVD;
     function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
         [U,S,V] = svd(Y);
         Ur = U(:,1:r);
         S = diag(S);
         Sr = S(1:r);
         Vr = V(:,1:r);
-        % Yr = U * S * V' (Point), dY = Direction
+        % Y = U * S * V', dY = Direction
         %
-        % r is the rank of Yr, and Yr is of size n x m.
+        % r is the number number determining the approximation Yr = UrSrVr'
 
         [n,~] = size(Ur);
         [m,r] = size(Vr);
@@ -234,52 +235,32 @@ MatTools.dParamG = @dParametrizationGrassmann;
             Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
         end
         
-        Gamma = zeros(m,r)
-        for i = i:m
+        % Since Y most often will have low rank, one can make this 
+        % computation more efficient. 
+        Gamma = zeros(m,r);
+        for i = 1:m
+            w1 = U(:,i)'* dY ;
+            w2 = dY * V(:,i);
+            
             for j = 1:r
                 if i ~= j
                     if abs(S(i) - S(j)) < 10-10
                         error("The singular values for (i,j) = ("+num2str(Sr(i))+","+num2str(Sr(j))+") are too close")
                     end
-                    Gamma(i,j) = S(i) * (U(:,i)'* dY * V(:,j)) + S(j) * (U(:,j)' * dY * V(:,i));
+                    Gamma(i,j) = S(i) * w1 * V(:,j) + S(j) * U(:,j)' * w2;
+
+                    Gamma(i,j) = Gamma(i,j) / ( (S(j) + S(i)) * (S(j) - S(i)) ) ;
                 end
 
             end
         end
+        Gammar = Gamma(1:r,1:r);
 
-
-
-    end
-
-    function [Udot, Sdot, Vdot] = dSVD_old(Y,dY)
-        % Y = Point, dY = Direction
-        %
-        % Y is assumed to be skinny, n > p, 
-        
-        [n,p] = size(Y);
-        [U,S,V] = svd(Y,'econ');
-        S = diag(S);
-        % Sdot
-        Sdot = diag(zeros(p));
-        for j = 1:p
-            Sdot(j) = U(:,j)' * dY * V(:,j);
-        end
-        Sdot = diag(Sdot);
-        % Vdot
-        Gamma = zeros(j);
-        % Can be made efficient if i,j and j,i are treated simultaniously
-        for i = 1:p
-            for j = 1:p
-                if i ~= j
-                    Gamma(i,j) = ( S(i) * (U(:,i)' * dY * V(:,j)) + S(j)*(U(:,j)'*dY*V(:,i)) );
-                    Gamma(i,j) = Gamma(i,j) / ((S(j) + S(i)) * (S(j) - S(i)));
-                end
-             end
-        end
         Vdot = V * Gamma;
-
-        Udot = (dY * V + U*(diag(S)*Gamma - Sdot)) / Sdot;
+        
+        Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot)) / diag(Sr);
 
     end
 
+    
 end
