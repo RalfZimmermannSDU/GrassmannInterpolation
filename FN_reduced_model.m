@@ -83,7 +83,7 @@ for i = 1:nt
     end
 end
 
-Y = Q*Y;
+Y = Q*Y; % Map from the subspace to full space
 
 
 
