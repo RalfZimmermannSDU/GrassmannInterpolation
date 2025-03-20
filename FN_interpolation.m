@@ -181,7 +181,7 @@ end
 
 if pmor
     % Generate the points on each of the two Grassmann manifolds 
-    p = 15;
+    p = 7;
     Y = Data{1};
     [nx,nt] = size(Y);
     
@@ -216,25 +216,66 @@ if pmor
     
     % Friday: Test interpolated basis!
     % Ia \in [0.03, 0.07]
-    Ia = 0.035;
+    Ia = 0.065;
     norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
     norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
 
 
-    Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
+    %Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
-    norm(FN_full_model(Ia) - Y,'fro')
+    %norm(FN_full_model(Ia) - Y,'fro')
     
-            [k,l] = size(Y);
-            figure
-            for j = 1:3:l
-                plot(Y(j,:),Y(j + k/2,:),'r');
-                hold on
-            end
-            xlabel('u(x,t)')
-            ylabel('v(x,t)')
-            title("Phase space, I_a = " + num2str(Ia))
+
+    % Hermite interpolation
+    % Ia  = 0.035
+    
+    Ia = 0.035;
+
+    % Grassmann data
+    % Data{1} corresponds to  Ia = 0.03, Data{2} corresponds to Ia = 0.04 
+    [U0,S0,V0] = svd(Data{1}(1:nx/2,:));
+    [U1,S1,V1] = svd(Data{2}(1:nx/2,:));
+
+    U1x0 = U0(:,1:p); % on Gr(n,p)
+    U1x1 = U1(:,1:p); % on Gr(n,p)
+    
+    [U0,S0,V0] = svd(Data{1}(nx/2+1:end,:));
+    [U1,S1,V1] = svd(Data{2}(nx/2+1:end,:));
+
+    U2x0 = U0(:,1:p); % on Gr(n,p)
+    U2x1 = U1(:,1:p); % on Gr(n,p)
+
+    % | U1    |
+    % |    U2 | is the reduced basis 
+
+    % Derivative data
+    %
+    % Obtain derivatives for the four U factors
+    [U1x0dot, Sdot, Vdot] = Mat.dSVD(Data{1}(1:nx/2,:),p,d_Data{1}(1:nx/2,:));
+    [U1x1dot, Sdot, Vdot] = Mat.dSVD(Data{2}(1:nx/2,:),p,d_Data{2}(1:nx/2,:));
+
+    [U2x0dot, Sdot, Vdot] = Mat.dSVD(Data{1}(nx/2+1:end,:),p,d_Data{1}(nx/2+1:end,:));
+    [U2x1dot, Sdot, Vdot] = Mat.dSVD(Data{2}(nx/2+1:end,:),p,d_Data{2}(nx/2+1:end,:));
+    
+    % Asses quality 
+    norm(U1x0dot'*U1x0+U1x0'*U1x0dot)
+    norm(U1x1dot'*U1x1+U1x1'*U1x1dot)
+
+    norm(U2x0dot'*U2x0+U1x0'*U2x0dot)
+    norm(U2x1dot'*U2x1+U1x1'*U2x1dot)
+    
+    
+    
+    [k,l] = size(Y);
+    figure
+    for j = 1:3:l
+        plot(Y(j,:),Y(j + k/2,:),'r');
+        hold on
+    end
+    xlabel('u(x,t)')
+    ylabel('v(x,t)')
+    title("Phase space, I_a = " + num2str(Ia))
 end
 %% Visuals
 % Create plots of the system
