@@ -8,7 +8,7 @@ createsnapshots = 0; % create new snapshots?
 
 visuals = 0; % show phase-space plots of the full system?
 svd_plots = 0; % show svd and RIC plots for the snapshot data?
-pmor = 0; % perform parametric model order reduction
+pmor = 1; % perform parametric model order reduction
 
 
 Mat = matrix_tools(); % Import various Grassmann functions. 
@@ -209,16 +209,18 @@ if pmor
     W = Grassmann_points_v{1};
     for i = 1:n
         V = Grassmann_points_u{i};
-        Z = Grassmann_points_v{1};
+        Z = Grassmann_points_v{i};
         tangent_data_u{i} = Mat.LogG(U,V); % Data is mapped to tangent space
         tangent_data_v{i} = Mat.LogG(W,Z); % Data is mapped to tangent space
     end
     
     % Friday: Test interpolated basis!
     % Ia \in [0.03, 0.07]
-    Ia = 0.065;
+    Ia = 0.035;
     norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
     norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
+
+
     Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
@@ -326,4 +328,34 @@ function interpol = LagrangeInt(x,xs,ys)
     for i = 1:n
         interpol = interpol + ys{i}*L(i);
     end
+end
+
+function y = HermiteInterpol(x0,x1,dx0,dx1,t0,t1,t)
+    % Computes the Hermite Interpolant at t 
+    % in a vector space.
+    %   
+    %   Input: Data x0, x1 in vector space format (ex. local coordinates)
+    %          Derivative data dx0, dx1 in the same vector space
+    %
+    %   Output: Interpolated point at time t \in [t0,t1]
+    %
+
+    a0 = @(t) 1 - 1/(t1-t0)^2*(t-t0)^2 + 2/(t1 - t0)^3*(t-t0)^2*(t-t1);
+    a1 = @(t) 1/(t1-t0)^2 * (t-t0)^2 - 2/(t1-t0)^3*(t-t0)^2*(t-t1);
+    b0 = @(t) (t-t0) - 1/(t1-t0)*(t-t0)^2 + 1/(t1-t0)*(t-t0)^2*(t-t1);
+    b1 = @(t) 1/(t1-t0)^2*(t-t0)^2*(t-t1);
+
+    gamma = @(t) a0(t)*x0 + a1(t)*x1 + b0(t)*dx0 + b1(t) * dx1;
+
+    y = gamma(t);
+end
+function deriv = FDapprox(Man, y0,y1,dir,h)
+    % Input:
+    %   Man:   Manifold object
+    %   y0,y1: Points 
+    %   dir:   Direction in which the differnetial should be computed
+    %   h:     Stepsize
+
+    M = Man;
+    deriv = ( M.LogG(y1,M.ExpG(y0,h*dir)) - M.LogG(y1,M.ExpG(y0,-h*dir)) ) / (2*h);
 end
