@@ -265,7 +265,13 @@ if pmor
     norm(U2x0dot'*U2x0+U1x0'*U2x0dot)
     norm(U2x1dot'*U2x1+U1x1'*U2x1dot)
     
-    
+    % Compute xi1 and xi2
+
+
+    % Compute Delta_p1 and Delta_p2 via finite differences
+
+
+    % Compute interpolant at Ia = 0.035
     
     [k,l] = size(Y);
     figure
