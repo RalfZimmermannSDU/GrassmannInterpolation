@@ -181,7 +181,7 @@ end
 
 if pmor
     % Generate the points on each of the two Grassmann manifolds 
-    p = 7;
+    p = 8;
     Y = Data{1};
     [nx,nt] = size(Y);
     
@@ -214,23 +214,21 @@ if pmor
         tangent_data_v{i} = Mat.LogG(W,Z); % Data is mapped to tangent space
     end
     
-    % Friday: Test interpolated basis!
+    % Test interpolated basis!
     % Ia \in [0.03, 0.07]
-    Ia = 0.065;
+    Ia = 0.031;
     norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
     norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
 
-
-    %Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
+    Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
-    %norm(FN_full_model(Ia) - Y,'fro')
+    e1 = norm(FN_full_model(Ia) - Y,'fro');
     
 
     % Hermite interpolation
     % Ia  = 0.035
     
-    Ia = 0.035;
 
     % Grassmann data
     % Data{1} corresponds to  Ia = 0.03, Data{2} corresponds to Ia = 0.04 
@@ -266,13 +264,28 @@ if pmor
     norm(U2x1dot'*U2x1+U1x1'*U2x1dot)
     
     % Compute xi1 and xi2
-
+    xi1 = Mat.LogG(U1x1,U1x0);
+    xi2 = Mat.LogG(U2x1,U2x0);
 
     % Compute Delta_p1 and Delta_p2 via finite differences
+    h = 0.0001;
+    Delta_p1 = FDapprox(Mat, U1x0, U1x1, U1x0dot,h);
+    Delta_p2 = FDapprox(Mat, U2x0, U2x1, U2x0dot, h);
 
+    norm(Delta_p1'*U1x1+U1x1'*Delta_p1)
+    norm(Delta_p2'*U2x1+U2x1'*Delta_p2)
 
     % Compute interpolant at Ia = 0.035
+    D1 = HermiteInterpol(xi1,0,Delta_p1,U1x1dot,points(1),points(2),Ia);
+    Q1 = Mat.ExpG(U1x1,D1);
+
+    D2 = HermiteInterpol(xi2,0,Delta_p2,U2x1dot,points(1),points(2),Ia);
+    Q2 = Mat.ExpG(U2x1,D2);
     
+    Y = FN_reduced_model(Q1,Q2,Ia);
+    
+    e2 = norm(FN_full_model(Ia) - Y,'fro');
+
     [k,l] = size(Y);
     figure
     for j = 1:3:l
