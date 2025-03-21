@@ -10,14 +10,15 @@ visuals = 0; % show phase-space plots of the full system?
 svd_plots = 0; % show svd and RIC plots for the snapshot data?
 pmor = 1; % perform parametric model order reduction
 
+interpol_bases_plot = 0; % comare true and interpolated reduce bases 
 
 Mat = matrix_tools(); % Import various Grassmann functions. 
 
 
 %% Snapshots
 % Create plots of the system
-points = [0.03 0.04 0.05 0.06 0.07];
-
+%points = [0.03 0.04 0.05 0.06 0.07];
+points = [0.07 0.09 0.11];
 
 [~,n] = size(points);
 Data = cell(1,n);
@@ -28,7 +29,7 @@ if createsnapshots
     end
 
     % Store data 
-    %eval(['save snapshots_FN_model/','data','.mat Data']);'
+    eval(['save snapshots_FN_model/','data_shift','.mat Data']);
 
     h = 0.0001;
     for i = 1:n
@@ -38,16 +39,21 @@ if createsnapshots
         derivData{i} = (Yph - Ymh) / (2*h);
     end
     % Store derivative data 
-    %eval(['save snapshots_FN_model/','derivative_data','.mat Data']);
+    eval(['save snapshots_FN_model/','derivative_data_shift','.mat Data']);
 end
 
 
-Data = load('snapshots_FN_model/data_highres.mat');
-d_Data = load('snapshots_FN_model/data_highres.mat');
+% Data = load('snapshots_FN_model/data_highres.mat');
+% d_Data = load('snapshots_FN_model/derivative_data.mat');
+% 
+% Data = Data.Data; 
+% d_Data = d_Data.Data; 
 
+Data = load('snapshots_FN_model/data_shift.mat');
+d_Data = load('snapshots_FN_model/derivative_data_shift.mat');
 Data = Data.Data; 
 d_Data = d_Data.Data; 
-% 
+
 % for i = 1:n
 %     rank(Data{i})
 % end
@@ -187,6 +193,10 @@ if pmor
     
     Grassmann_points_u = cell(1,n);
     Grassmann_points_v = cell(1,n);
+    
+    % Use fewer snapshots
+    %points = [0.03, 0.05, 0.07];
+
     for i = 1:n
         Y = Data{i};
     
@@ -216,19 +226,28 @@ if pmor
     
     % Test interpolated basis!
     % Ia \in [0.03, 0.07]
-    Ia = 0.031;
+    Ia = 0.07;
     norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
     norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
 
-    Y = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
+    YL = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
-    e1 = norm(FN_full_model(Ia) - Y,'fro');
+    e1 = norm(FN_full_model(Ia) - YL,'fro');
     
 
     % Hermite interpolation
     % Ia  = 0.035
     
+    % W1 = Data{2};
+    % W2 = Data{3};
+    % dW1 = d_Data{2};
+    % dW2 = d_Data{3};
+    % Data = cell(1,2);
+    % d_Data = cell(1,2);
+    % 
+    % Data{1} = W1; Data{2} = W2;
+    % d_Data{1} = dW1; d_Data{2} = dW2;
 
     % Grassmann data
     % Data{1} corresponds to  Ia = 0.03, Data{2} corresponds to Ia = 0.04 
@@ -282,14 +301,16 @@ if pmor
     D2 = HermiteInterpol(xi2,0,Delta_p2,U2x1dot,points(1),points(2),Ia);
     Q2 = Mat.ExpG(U2x1,D2);
     
-    Y = FN_reduced_model(Q1,Q2,Ia);
-    
-    e2 = norm(FN_full_model(Ia) - Y,'fro');
 
-    [k,l] = size(Y);
+
+    YH = FN_reduced_model(Q1,Q2,Ia);
+    
+    e2 = norm(FN_full_model(Ia) - YH,'fro');
+
+    [k,l] = size(YH);
     figure
     for j = 1:3:l
-        plot(Y(j,:),Y(j + k/2,:),'r');
+        plot(YH(j,:),YH(j + k/2,:),'r');
         hold on
     end
     xlabel('u(x,t)')
