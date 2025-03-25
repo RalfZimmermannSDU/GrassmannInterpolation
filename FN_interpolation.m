@@ -49,8 +49,8 @@ end
 % Data = Data.Data; 
 % d_Data = d_Data.Data; 
 
-Data = load('snapshots_FN_model/data_shift.mat');
-d_Data = load('snapshots_FN_model/derivative_data_shift.mat');
+Data = load('snapshots_FN_model/data_highres.mat');
+d_Data = load('snapshots_FN_model/derivative_data.mat');
 Data = Data.Data; 
 d_Data = d_Data.Data; 
 
@@ -226,14 +226,15 @@ if pmor
     
     % Test interpolated basis!
     % Ia \in [0.03, 0.07]
-    Ia = 0.07;
+    Ia = 0.035;
+    Int1 = Interpolate_Gr(points, Grassmann_points_v,Ia, 'normal_lag');
     norm(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)) - Grassmann_points_u{1})
     norm(Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)) - Grassmann_points_v{1})
 
-    YL = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
+    %YL = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
-    e1 = norm(FN_full_model(Ia) - YL,'fro');
+    %e1 = norm(FN_full_model(Ia) - YL,'fro');
     
 
     % Hermite interpolation
@@ -301,7 +302,11 @@ if pmor
     D2 = HermiteInterpol(xi2,0,Delta_p2,U2x1dot,points(1),points(2),Ia);
     Q2 = Mat.ExpG(U2x1,D2);
     
+    derivs = cell(1,2);
+    derivs{1} = U2x0dot;
+    derivs{2} = U2x1dot;
 
+    Int1 = Interpolate_Gr(points, Grassmann_points_v,Ia, 'normal_lag', derivs);
 
     YH = FN_reduced_model(Q1,Q2,Ia);
     
