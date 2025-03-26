@@ -62,10 +62,26 @@ end
 
 if routine_flag == "local_lag"
     % Preprocessing: Map to local cooridnates 
+    [~,n] = size(Data);
 
+    local_data = cell(1,n);
+    
+    U = Data{1}; 
+    [~,p] = size(U);
+    for i = 1:n
+        % psi(U) = U2 / U1;
+        local_data{i} = Data{i}(p+1:end,:) / Data{i}(1:p,1:p);
+    end
 
     % Interpolate 
+    Y = LagrangeInt(t, time_data, local_data);
 
+    
+    % Map back to manifold
+    %[Y,~] = qr([eye(p); Y],'econ');
+    
+    R = chol(eye(p) + Y'*Y); % Note the transpose for consistency
+    Y = [eye(p); Y] / inv(R);
 end
 
 if routine_flag == "local_herm"
