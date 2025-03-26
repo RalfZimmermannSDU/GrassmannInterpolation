@@ -17,8 +17,8 @@ Mat = matrix_tools(); % Import various Grassmann functions.
 
 %% Snapshots
 % Create plots of the system
-%points = [0.03 0.04 0.05 0.06 0.07];
-points = [0.07 0.09 0.11];
+points = [0.03 0.04 0.05 0.06 0.07];
+%points = [0.07 0.09 0.11];
 
 [~,n] = size(points);
 Data = cell(1,n);
@@ -234,7 +234,8 @@ if pmor
     %YL = FN_reduced_model(Mat.ExpG(Grassmann_points_u{1},LagrangeInt(Ia,points,tangent_data_u)),Mat.ExpG(Grassmann_points_v{1},LagrangeInt(Ia,points,tangent_data_v)),Ia);
     
     % Compare full model with approximation
-    %e1 = norm(FN_full_model(Ia) - YL,'fro');
+    %Y_full = FN_full_model(Ia);
+    %e1 = norm(Y_full - YL,'fro');
     
 
     % Hermite interpolation
@@ -306,12 +307,76 @@ if pmor
     derivs{1} = U2x0dot;
     derivs{2} = U2x1dot;
 
-    Int1 = Interpolate_Gr(points, Grassmann_points_v,Ia, 'normal_lag', derivs);
+    Int2 = Interpolate_Gr(points, Grassmann_points_v,Ia, 'normal_lag', derivs);
 
-    YH = FN_reduced_model(Q1,Q2,Ia);
+    %YH = FN_reduced_model(Q1,Q2,Ia);
     
-    e2 = norm(FN_full_model(Ia) - YH,'fro');
+    %e2 = norm(Y_full - YH,'fro');
+    
+    %
+    % Interpolation in local coordinates
+    %
+    % Lagrange:
 
+    % Preprocessing by maximum volume method 
+    P_data_u = cell(1,n);
+
+    [P_Gr_u1,Pu] = maxvol(Grassmann_points_u{1});
+    
+    mu = 0;
+    for i = 1:n
+        w =Pu*Grassmann_points_u{i};
+        P_data_u{i} = w;
+
+        mu = mu + cond(w(1:p,:));
+    end
+    disp("Average upper block condition number (u) "+ num2str(mu/n))
+
+    P_data_v = cell(1,n);
+
+    [P_Gr_v1,Pv] = maxvol(Grassmann_points_v{1});
+    
+    mu = 0;
+    for i = 1:n
+        w =Pv*Grassmann_points_v{i};
+        P_data_v{i} = w;
+
+        mu = mu + cond(w(1:p,:));
+    end
+    disp("Average upper block condition number (v) "+ num2str(mu/n))
+
+    Q1 = Pu'*Interpolate_Gr(points, P_data_u,Ia, 'local_lag');
+    Q2 = Pv'*Interpolate_Gr(points, P_data_v,Ia, 'local_lag');
+
+    YL = FN_reduced_model(Q1,Q2,Ia);
+    Y_full = FN_full_model(Ia);
+    e3 = norm(Y_full - YL,'fro');
+
+
+    % Hermite interpolation
+    % Use the processed data from the Lagrange experiment
+    
+    % Compute the derivatives in local cooridnates 
+    P_derivs_u = cell(1,2);
+    P_derivs_u{1} = Pu*U1x0dot;
+    P_derivs_u{2} = Pu*U1x1dot;
+
+    P_derivs_v = cell(1,2);
+    P_derivs_v{1} = Pu*U2x0dot;
+    P_derivs_v{2} = Pu*U2x1dot;
+    
+    % % Map to local coordinates
+    % for i = 1:2
+    %     P_loc_derivs_u{i} = Mat.dLocalCoordG(P_data_u{i}, P_loc_derivs_u{i}, nx/2, p);
+    %     P_loc_derivs_v{i} = Mat.dLocalCoordG(P_data_v{i}, P_loc_derivs_v{i}, nx/2, p);
+    % end
+
+    Q1 = Pu'*Interpolate_Gr(points(1:2), P_data_u,Ia, 'local_herm', P_derivs_u);
+    Q2 = Pv'*Interpolate_Gr(points(1:2), P_data_v,Ia, 'local_herm', P_derivs_v);
+    
+    YH = FN_reduced_model(Q1,Q2,Ia);
+    e4 = norm(Y_full - YH,'fro');
+    
     [k,l] = size(YH);
     figure
     for j = 1:3:l
@@ -444,4 +509,45 @@ function deriv = FDapprox(Man, y0,y1,dir,h)
 
     M = Man;
     deriv = ( M.LogG(y1,M.ExpG(y0,h*dir)) - M.LogG(y1,M.ExpG(y0,-h*dir)) ) / (2*h);
+end
+function [U,P] = maxvol(U)
+    [n,p] = size(U);
+    
+    Usquare = U(1:p,1:p);
+    cond_start = cond(Usquare);
+
+    E = sparse(eye(n));
+    
+    E2 = E;
+    warning('off','MATLAB:nearlySingularMatrix')
+    for k = 1:30
+        B = U / Usquare;
+        [b,I] = max(abs(B),[],'all');
+        if B(I)<0
+            b = -b;
+        end
+        %disp(num2str(b))
+        if abs(b) > 1
+            [i,j] = find(~(B-ones(n,p)*b));
+            %disp("(i,j) = " + num2str(i) + ", " +num2str(j))
+            U = U + (E(:,j) - E(:,i))*(U(i,:)-U(j,:));
+            
+            Ei = E2(i,:);
+            Ej = E2(j,:);
+    
+            E2(i,:) = Ej;
+            E2(j,:) = Ei;
+        end
+        Usquare = U(1:p,1:p);
+        if abs(b) < 1 + 10e-3
+            break
+        end
+    end
+    cond_end = cond(Usquare);
+    P = E2;
+    disp("Maxvol algorithm:")
+    disp("num. iter " + num2str(k));
+    disp("Condition number before " + num2str(cond_start))
+    disp("Condition number after  " + num2str(cond_end))
+
 end
