@@ -105,7 +105,6 @@ if routine_flag == "local_herm"
     % Map back to manifold
     R = chol(eye(k) + Y'*Y); % Note the transpose for consistency
     Y = [eye(k); Y] / inv(R);
-
 end
 
 end
