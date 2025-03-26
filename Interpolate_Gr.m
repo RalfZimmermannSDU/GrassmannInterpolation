@@ -70,7 +70,7 @@ if routine_flag == "local_lag"
     [~,p] = size(U);
     for i = 1:n
         % psi(U) = U2 / U1;
-        local_data{i} = Data{i}(p+1:end,:) / Data{i}(1:p,1:p);
+        local_data{i} = LocalCoordG(Data{i});
     end
 
     % Interpolate 
@@ -79,13 +79,32 @@ if routine_flag == "local_lag"
     
     % Map back to manifold
     %[Y,~] = qr([eye(p); Y],'econ');
-    
+
     R = chol(eye(p) + Y'*Y); % Note the transpose for consistency
     Y = [eye(p); Y] / inv(R);
 end
 
 if routine_flag == "local_herm"
+    % Preprocessing: Map to local coordinates
+    p = Data{1};
+    q = Data{2};
+    pdot = Deriv_data{1};
+    qdot = Deriv_data{2};
 
+    lp = LocalCoordG(p);
+    lq = LocalCoordG(q);
+    
+    [n,k] = size(p);
+
+    lpdot = dLocalCoordG(p,pdot,n,k);
+    lqdot = dLocalCoordG(q,qdot,n,k);
+    
+    % Interpolate
+    Y = HermiteInterpol(lp, lq, lpdot, lqdot,time_data(1), time_data(2), t);
+    
+    % Map back to manifold
+    R = chol(eye(k) + Y'*Y); % Note the transpose for consistency
+    Y = [eye(k); Y] / inv(R);
 
 end
 
