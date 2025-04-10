@@ -150,6 +150,10 @@ MatTools.LocalCoordG = @LocalCoordinatesGrassmann;
         %     (B C )
         %
         % P = U*U';
+        %
+        % OR 
+        % Inserting a Stiefel representative U st. P = U*U' 
+        % 
         
         A = P(1:p,1:p);
         B = P(p+1:n,1:p);
