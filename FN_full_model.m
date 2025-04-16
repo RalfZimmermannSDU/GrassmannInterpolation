@@ -57,7 +57,7 @@ for i = 1:nt
     rhs(1:nx) = 1/epsilon * rhs(1:nx);
     y = y + rhs * dt;
     if find(StoreIndices == i, 1)
-        disp(t);
+        %disp(t);
         Y(:,end+1) = y;
     end
 end

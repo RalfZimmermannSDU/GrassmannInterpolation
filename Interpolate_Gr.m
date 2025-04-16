@@ -142,13 +142,18 @@ function y = HermiteInterpol(x0,x1,dx0,dx1,t0,t1,t)
     %
     %   Output: Interpolated point at time t \in [t0,t1]
     %
+    % 
+    % a0 = @(t) 1 - 1/(t1-t0)^2*(t-t0)^2 + 2/(t1 - t0)^3*(t-t0)^2*(t-t1);
+    % a1 = @(t) 1/(t1-t0)^2 * (t-t0)^2 - 2/(t1-t0)^3*(t-t0)^2*(t-t1);
+    % b0 = @(t) (t-t0) - 1/(t1-t0)*(t-t0)^2 + 1/(t1-t0)*(t-t0)^2*(t-t1);
+    % b1 = @(t) 1/(t1-t0)^2*(t-t0)^2*(t-t1);
 
-    a0 = @(t) 1 - 1/(t1-t0)^2*(t-t0)^2 + 2/(t1 - t0)^3*(t-t0)^2*(t-t1);
-    a1 = @(t) 1/(t1-t0)^2 * (t-t0)^2 - 2/(t1-t0)^3*(t-t0)^2*(t-t1);
-    b0 = @(t) (t-t0) - 1/(t1-t0)*(t-t0)^2 + 1/(t1-t0)*(t-t0)^2*(t-t1);
-    b1 = @(t) 1/(t1-t0)^2*(t-t0)^2*(t-t1);
+    L00 = @(t) (1 - 2/(t0-t1)*(t-t0)) * ((t-t1)/(t0-t1))^2;
+    L10 = @(t) (1 - 2/(t1-t0)*(t-t1)) * ((t-t0)/(t1-t0))^2;
+    L01 = @(t) (t-t0)*((t-t1)/(t1-t0))^2;
+    L11 = @(t) (t-t1)*((t-t0)/(t0-t1))^2;
 
-    gamma = @(t) a0(t)*x0 + a1(t)*x1 + b0(t)*dx0 + b1(t) * dx1;
-
+    %gamma = @(t) a0(t)*x0 + a1(t)*x1 + b0(t)*dx0 + b1(t) * dx1;
+    gamma = @(t) L00(t)*x0 + L10(t)*x1 + L01(t)*dx0 + L11(t) * dx1;
     y = gamma(t);
 end

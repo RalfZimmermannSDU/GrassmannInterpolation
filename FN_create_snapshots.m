@@ -23,7 +23,7 @@ for i = 1:n
     Data{i} = FN_full_model(points(i));
 
     h = 0.00001;
-    Ymh = FN_full_model(points(i)-h);
+    Ymh = FN_full_model(points(i)-h);$
     Yph = FN_full_model(points(i)+h);
     Data_dot{i} = (Yph - Ymh) / (2*h);
 
