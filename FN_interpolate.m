@@ -71,7 +71,30 @@ f.Position = [40,800,1200*5/6*1/2,650*5/6];
 plot(points(1:21),E_lag)
 hold on 
 plot(points(1:21),E_herm)
+title("Interpolation in normal coordinates")
+legend("Lagrange","Hermite")
+fontsize(f,15,"pixels")
 
+% Make plot, local
+E_lag = [];
+E_herm = [];
+for i = 1:21
+    t = points(i);
+    I_lag = Pu'*Interpolate_Gr(Ias, u_data_loc,t, 'local_lag');
+    I_herm = Pu'*Interpolate_Gr(Ias, u_data_loc,t, 'local_herm',u_dot_data_loc);
+    
+    P = Data.data_u{i}(:,1:p)*Data.data_u{i}(:,1:p)';
+
+    E_lag(i) = norm(P - I_lag*I_lag','fro');
+    E_herm(i) = norm(P - I_herm*I_herm','fro');
+end
+
+f = figure
+f.Position = [40,800,1200*5/6*1/2,650*5/6];
+plot(points(1:21),E_lag)
+hold on 
+plot(points(1:21),E_herm)
+title("Interpolation in local coordinates")
 legend("Lagrange","Hermite")
 fontsize(f,15,"pixels")
 
