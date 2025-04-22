@@ -8,7 +8,7 @@ end
 T = 8; % Final time
 L = 1; % x \in [0,L]
 
-nt = 10e5;
+nt = 10e6;
 nx = 1024;
 
 dx = L /(nx + 2); % spatial stepsize

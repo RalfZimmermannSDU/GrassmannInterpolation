@@ -2,7 +2,7 @@
 clear 
 close all
 
-Data = load("snapshots_FN_model/snapshot_N_91.mat");
+Data = load("snapshots_FN_model/snapshot_N_91_highres.mat");
 
 
 % First, consider two points
@@ -119,7 +119,7 @@ E_herm_norm = [];
 
 [~,mm] = size(points);
 
-for j = 1:8
+for j = 1:6
     I = zeros(1,mm);
     t0 = Intervals(j);
     t1 = Intervals(j+1);
@@ -128,14 +128,15 @@ for j = 1:8
     
     
     %I = ismember(points,Ias);
-    for i = 1:mm
-        if abs(points(i) - t0) < 0.000001
-            I(i) = 1;
-        end
-        if abs(points(i) - t1) < 0.000001
-            I(i) = 1;
-        end
-    end
+    % for i = 1:mm
+    %     if abs(points(i) - t0) < 0.000001
+    %         I(i) = 1;
+    %     end
+    %     if abs(points(i) - t1) < 0.000001
+    %         I(i) = 1;
+    %     end
+    % end
+    I = ismembertol(points,Ias,10e-10);
     n = sum(I);
     [~,m] = size(points);
     
@@ -183,11 +184,13 @@ for j = 1:8
     E_herm_norm = [E_herm_norm(1:end-1) EH];
 end
 
+
+[~,m] = size(E_lag_loc)
 f = figure;
 f.Position = [40,800,1200*5/6*1/2,650*5/6];
-plot(points(1:81),E_lag_loc)
+plot(points(1:m),E_lag_loc)
 hold on
-plot(points(1:81),E_herm_loc)
+plot(points(1:m),E_herm_loc)
 title("Interpolation in local coordinates")
 legend("Lagrange","Hermite")
 fontsize(f,15,"pixels")
@@ -195,9 +198,9 @@ fontsize(f,15,"pixels")
 
 f = figure;
 f.Position = [40,800,1200*5/6*1/2,650*5/6];
-plot(points(1:81),E_lag_norm)
+plot(points(1:m),E_lag_norm)
 hold on
-plot(points(1:81),E_herm_norm)
+plot(points(1:m),E_herm_norm)
 title("Interpolation in normal coordinates")
 legend("Lagrange","Hermite")
 fontsize(f,15,"pixels")

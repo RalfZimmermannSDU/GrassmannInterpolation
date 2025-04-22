@@ -23,7 +23,7 @@ for i = 1:n
     Data{i} = FN_full_model(points(i));
 
     h = 0.00001;
-    Ymh = FN_full_model(points(i)-h);$
+    Ymh = FN_full_model(points(i)-h);
     Yph = FN_full_model(points(i)+h);
     Data_dot{i} = (Yph - Ymh) / (2*h);
 
@@ -38,6 +38,6 @@ for i = 1:n
     disp("Computed data for Ia = " + num2str(points(i)))
 end
 
-eval(['save snapshots_FN_model/snapshot_N_', num2str(n),'.mat data_u data_v data_u_dot data_v_dot']);
+eval(['save snapshots_FN_model/snapshot_N_', num2str(n),'_highres.mat data_u data_v data_u_dot data_v_dot']);
 
 
