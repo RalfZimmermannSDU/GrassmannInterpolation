@@ -1,6 +1,6 @@
 % Interpolate the FN system
 clear 
-close all
+%close all
 
 Data = load("snapshots_FN_model/snapshot_N_91_highres.mat");
 
@@ -119,6 +119,9 @@ E_herm_norm = [];
 
 [~,mm] = size(points);
 
+condsl = [];
+condsr = [];
+
 for j = 1:6
     I = zeros(1,mm);
     t0 = Intervals(j);
@@ -175,6 +178,9 @@ for j = 1:6
         u_dot_data_loc{i} = Pu*u_dot_data{i};
         v_dot_data_loc{i} = Pv*v_dot_data{i};
     end
+
+    condsl(j) = cond(u_data_loc{1}(1:p,1:p));
+    condsr(j) = cond(u_data_loc{2}(1:p,1:p));
     [EL,EH] = error_on_interval_loc(u_data_loc,u_dot_data_loc,true_data,Pu,t0,t1,h);
     E_lag_loc = [E_lag_loc(1:end-1) EL];
     E_herm_loc = [E_herm_loc(1:end-1) EH];
@@ -185,7 +191,7 @@ for j = 1:6
 end
 
 
-[~,m] = size(E_lag_loc)
+[~,m] = size(E_lag_loc);
 f = figure;
 f.Position = [40,800,1200*5/6*1/2,650*5/6];
 plot(points(1:m),E_lag_loc)
