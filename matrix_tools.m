@@ -219,52 +219,72 @@ MatTools.dParamG = @dParametrizationGrassmann;
     end
 
 %MatTools.dSVD = @dSVD;
-    % Differentiate the truncated singular value decomposition
-    MatTools.dSVD = @dSVD;
-    function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
-        [U,S,V] = svd(Y);
-        Ur = U(:,1:r);
-        S = diag(S);
-        Sr = S(1:r);
-        Vr = V(:,1:r);
-        % Y = U * S * V', dY = Direction
-        %
-        % r is the number number determining the approximation Yr = UrSrVr'
+% Differentiate the truncated singular value decomposition
+MatTools.dSVD = @dSVD;
+function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
+    [U,S,V] = svd(Y);
+    Ur = U(:,1:r);
+    S = diag(S);
+    Sr = S(1:r);
+    Vr = V(:,1:r);
+    % Y = U * S * V', dY = Direction
+    %
+    % r is the number number determining the approximation Yr = UrSrVr'
 
-        [n,~] = size(Ur);
-        [m,r] = size(Vr);
-        
-        Sdot = zeros(r);
-        for j = 1:r
-            Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
-        end
-        
-        % Since Y most often will have low rank, one can make this 
-        % computation more efficient. 
-        Gamma = zeros(m,r);
-        for i = 1:m
-            w1 = U(:,i)'* dY ;
-            w2 = dY * V(:,i);
-            
-            for j = 1:r
-                if i ~= j
-                    if abs(S(i) - S(j)) < 10-10
-                        error("The singular values for (i,j) = ("+num2str(Sr(i))+","+num2str(Sr(j))+") are too close")
-                    end
-                    Gamma(i,j) = S(i) * w1 * V(:,j) + S(j) * U(:,j)' * w2;
-
-                    Gamma(i,j) = Gamma(i,j) / ( (S(j) + S(i)) * (S(j) - S(i)) ) ;
-                end
-
-            end
-        end
-        Gammar = Gamma(1:r,1:r);
-
-        Vdot = V * Gamma;
-        
-        Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot)) / diag(Sr);
-
-    end
-
+    [n,~] = size(Ur);
+    [m,r] = size(Vr);
     
+    Sdot = zeros(r);
+    for j = 1:r
+        Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
+    end
+    
+    % Since Y most often will have low rank, one can make this 
+    % computation more efficient. 
+    Gamma = zeros(m,r);
+    for i = 1:m
+        w1 = U(:,i)'* dY ;
+        w2 = dY * V(:,i);
+        
+        for j = 1:r
+            if i ~= j
+                if abs(S(i) - S(j)) < 10-10
+                    error("The singular values for (i,j) = ("+num2str(Sr(i))+","+num2str(Sr(j))+") are too close")
+                end
+                Gamma(i,j) = S(i) * w1 * V(:,j) + S(j) * U(:,j)' * w2;
+
+                Gamma(i,j) = Gamma(i,j) / ( (S(j) + S(i)) * (S(j) - S(i)) ) ;
+            end
+
+        end
+    end
+    Gammar = Gamma(1:r,1:r);
+
+    Vdot = V * Gamma;
+    
+    Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot)) / diag(Sr);
+
+end
+
+
+MatTools.LC_distbound = @lcdistbound;
+function c = lcdistbound(U,V)
+    % U and V are Stiefel matrices
+    [~,p] = size(U);
+    U1 = U(1:p,1:p);
+    V1 = V(1:p,1:p);
+
+    c = sqrt(p*norm(inv(U1),'fro')^2-cond(U1,'fro')^2)+sqrt(p*norm(inv(V1),'fro')^2-cond(V1,'fro'));
+    
+end
+
+
+
+
+
+
+
+
+
+
 end
