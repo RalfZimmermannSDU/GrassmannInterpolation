@@ -266,22 +266,41 @@ function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
 
 end
 
+MatTools.dQR = @dQR;
+function [dQ,dR] = dQR(Y,dY)
+    [n,p] = size(Y);
+    
+    [Q,R] = qr(Y,'econ');
+    
+    PL = tril(ones(p,p),-1);
+    L = PL.*(Q'*dY / R);
+    X = L - L';
+    
+    dR = Q'*dY - X*R;
+    dQ = (eye(n) - Q*Q') * dY / R + Q*X;
+
+end
 
 MatTools.LC_distbound = @lcdistbound;
-function c = lcdistbound(U,V)
+function cb = lcdistbound(U,V)
     % U and V are Stiefel matrices
     [~,p] = size(U);
     U1 = U(1:p,1:p);
     V1 = V(1:p,1:p);
 
-    c = sqrt(p*norm(inv(U1),'fro')^2-cond(U1,'fro')^2)+sqrt(p*norm(inv(V1),'fro')^2-cond(V1,'fro'));
+    cb = sqrt(p*norm(inv(U1),'fro')^2-cond(U1,'fro')^2)+sqrt(p*norm(inv(V1),'fro')^2-cond(V1,'fro')^2);
     
 end
 
 
+MatTools.dphi_cond_bound = @conditionnumber_phi_bound;
 
-
-
+function cb = conditionnumber_phi_bound(B)
+    S = svd(B,'econ');
+    mx = max(S.^2 ./ ((1+S.^2).^2));
+    
+    
+end
 
 
 

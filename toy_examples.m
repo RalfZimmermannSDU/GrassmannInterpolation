@@ -2,12 +2,12 @@
 %
 % April 2025
 %
-M = matrix_tools();
+
 
 clear
 rng(123123,'twister')
 close all
-
+M = matrix_tools();
 % Genreal experiment parameters
 lt0 = 0; lt1 = 10; % Time interval for Lagrange wave plot.
 t0 = 0; t1 = 1; % Time interval for Hermite interpolation.
@@ -40,6 +40,7 @@ U = curve2(t,Y0,Y1,Y2,Y3);
 %c2 = cond(U(1:p,1:p))
 e2 = norm(Q2*Q2'-U*U','fro')
 
+
 e1s = [];
 e2s = [];
 for i = 1:101
@@ -49,7 +50,7 @@ for i = 1:101
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
     e1 = norm(Q1*Q1'-U*U','fro');
     e2 = norm(Q2*Q2'-U*U','fro');
-    
+
     e1s(i) = e1;
     e2s(i) = e2;
 
@@ -60,6 +61,72 @@ hold on
 plot(0:0.01:1,e2s)
 
 legend("Well-behaved","Less well-behaved")
+
+Data = cell(1,2);
+dData = cell(1,2);
+Data_P = cell(1,2);
+dData_P = cell(1,2);
+
+[Data{1}, dData{1}] = curve2(t0,Y0,Y1,Y2,Y3);
+cond(Data{1}(1:p,1:p))
+[Data{2},dData{2}] = curve2(t1,Y0,Y1,Y2,Y3);
+cond(Data{2}(1:p,1:p))
+
+[~,P] = maxvol(Data{1});
+Data_P{1} = P*Data{1};
+Data_P{2} = P*Data{2};
+dData_P{1} = P*dData{1};
+dData_P{2} = P*dData{2};
+cond(Data_P{1}(1:p,1:p))
+cond(Data_P{2}(1:p,1:p))
+
+for i = 1:101
+    t = (i-1)/100;
+    U = curve2(t,Y0,Y1,Y2,Y3);
+    Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % Well-behaved
+    Q2 = Interpolate_Gr([t0 t1],Data,t,'local_herm',dData); % Less well-behaved
+    e1 = norm(Q1*Q1'-U*U','fro');
+    e2 = norm(Q2*Q2'-U*U','fro');
+
+    e1s(i) = e1;
+    e2s(i) = e2;
+
+end
+figure
+plot(0:0.01:1,e1s)
+hold on
+plot(0:0.01:1,e2s)
+
+legend("Well-behaved","Less well-behaved")
+
+% norm(M.LocalCoordG(Data{1},n,p)-M.LocalCoordG(Data{2},n,p),'fro')
+% M.LC_distbound(Data{1},Data{2})
+% 
+% norm(M.LocalCoordG(Data_P{1},n,p)-M.LocalCoordG(Data_P{2},n,p),'fro')
+% M.LC_distbound(Data_P{1},Data_P{2})
+
+% dist_true = [];
+% dist_bound = [];
+% for i = 1:100
+%     U = M.RandS(n,p);
+%     V = M.RandS(n,p);
+%     U1 = U(1:p,1:p);
+%     V1 = V(1:p,1:p);
+% 
+%     dist_true(i) = norm(M.LocalCoordG(U,n,p)-M.LocalCoordG(V,n,p),'fro')
+%     dist_bound(i) = M.LC_distbound(U,V)
+% end
+% [dist_true,I] = sort(dist_true,'ascend');
+% figure
+% semilogy(dist_true)
+% hold on
+% semilogy(dist_bound(I))
+% legend("True distance","Bound")
+
+
+
+
+
 
 
 % % Ill--conditioning?
@@ -112,9 +179,17 @@ function U = curve1(t,W)
     U = U(:,1:p);
 end
 
-function Q = curve2(t,Y0,Y1,Y2,Y3)
+function [Q,dQ] = curve2(t,Y0,Y1,Y2,Y3)
+    M = matrix_tools();
     Y = Y0 + t*Y1 + t^2*Y2 + t^3*Y3;
+    dY = Y1 + 2*t*Y2 + 3*t^2*Y3;
     [Q,~] = qr(Y,'econ');
+    if nargout < 2
+        return
+    else
+        [dQ,~] = M.dQR(Y,dY);
+        return
+    end
 end
 function [U,P] = maxvol(U)
     [n,p] = size(U);
