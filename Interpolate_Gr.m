@@ -49,7 +49,7 @@ if routine_flag == "normal_herm"
 
     xi = Mat.LogG(q,p);
     
-    h = 0.0001;
+    h = 0.1;
     Delta_p = FDapprox(Mat, p, q, pdot, h);
     
     % Interpolate

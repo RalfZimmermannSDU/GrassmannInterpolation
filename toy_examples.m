@@ -43,25 +43,50 @@ e2 = norm(Q2*Q2'-U*U','fro')
 
 e1s = [];
 e2s = [];
+e3s = [];
+
+fe1s = [];
+fe2s = [];
+fe3s = [];
 for i = 1:101
     t = (i-1)/100;
     U = curve2(t,Y0,Y1,Y2,Y3);
     Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % Well-behaved
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
-    e1 = norm(Q1*Q1'-U*U','fro'); % Well-behaved 
-    e2 = norm(Q2*Q2'-U*U','fro'); % Less well-behaved
+    Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_lag'); % normal
+    
+    NU = norm(U*U','fro');
+    e1 = norm(Q1*Q1'-U*U','fro')/NU; % Well-behaved 
+    e2 = norm(Q2*Q2'-U*U','fro')/NU; % Less well-behaved
+    e3 = norm(Q3*Q3'-U*U','fro')/NU; % normal
 
     e1s(i) = e1;
     e2s(i) = e2;
+    e3s(i) = e3;
+
+
+    fe1s(i) = norm(Q1'*Q1 - eye(p),'fro'); % Well-behaved 
+    fe2s(i) = norm(Q2'*Q2 - eye(p),'fro'); % Less well-behaved
+    fe3s(i) = norm(Q3'*Q3 - eye(p),'fro'); % normal
 
 end
+
 figure
+plot(0:0.01:1,fe1s)
+hold on
+plot(0:0.01:1,fe2s)
+plot(0:0.01:1,fe3s)
+
+f = figure;
+f.Position = [40,800,1200*5/6,650*5/6];
+
+subplot(1,2,1)
 plot(0:0.01:1,e1s)
 hold on
 plot(0:0.01:1,e2s)
-
-legend("Well-behaved","Less well-behaved")
-
+plot(0:0.01:1,e3s)
+legend("MV coords","Local coords","Normal coords")
+title("Lagrange interpolation")
 t0 = 0; t1 = 1;
 
 e1s = [];
@@ -86,6 +111,10 @@ dData_P{2} = P*dData{2};
 cond(Data_P{1}(1:p,1:p))
 cond(Data_P{2}(1:p,1:p))
 
+fe1s = [];
+fe2s = [];
+fe3s = [];
+
 for i = 1:101
     t = (i-1)/101*(t1-t0)+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
@@ -96,27 +125,43 @@ for i = 1:101
     % Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % Well-behaved
     % Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
     % Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_lag'); % normal coords
-    e1 = norm(Q1*Q1'-U*U','fro');
-    e2 = norm(Q2*Q2'-U*U','fro');
-    e3 = norm(Q3*Q3'-U*U','fro');
+    NU = norm(U*U','fro');
+    e1 = norm(Q1*Q1'-U*U','fro')/NU;
+    e2 = norm(Q2*Q2'-U*U','fro')/NU;
+    e3 = norm(Q3*Q3'-U*U','fro')/NU;
 
     e1s(i) = e1;
     e2s(i) = e2;
     e3s(i) = e3;
+
+    fe1s(i) = norm(Q1'*Q1 - eye(p),'fro'); % Well-behaved 
+    fe2s(i) = norm(Q2'*Q2 - eye(p),'fro'); % Less well-behaved
+    fe3s(i) = norm(Q3'*Q3 - eye(p),'fro'); % normal
+    %fe3s(i) = norm(U'*U - eye(p),'fro'); % normal
 end
 
-ts = (t0:0.01:t1);
-f = figure;
-f.Position = [40,800,1200*5/6*1/2,650*5/6];
 
+ts = (t0:0.01:t1);
+subplot(1,2,2)
 plot(ts,e1s)
 hold on
 plot(ts,e2s)
 hold on
 plot(ts,e3s)
 
-legend("Maxvol. local","local","normal")
+legend("MV coords","Local coords","Normal coords")
+title("Hermite interpolation")
+
+sgtitle("Relative interpolation error")
+
 fontsize(f,15,"pixels")
+exportgraphics(f,"experiment_1.png","Resolution",300);
+
+figure
+plot(0:0.01:1,fe1s)
+hold on
+plot(0:0.01:1,fe2s)
+plot(0:0.01:1,fe3s)
 
 % norm(M.LocalCoordG(Data{1},n,p)-M.LocalCoordG(Data{2},n,p),'fro')
 % M.LC_distbound(Data{1},Data{2})
