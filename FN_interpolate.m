@@ -1,6 +1,6 @@
 % Interpolate the FN system
 clear 
-%close all
+close all
 
 Data = load("snapshots_FN_model/snapshot_N_91_highres.mat");
 
@@ -204,11 +204,15 @@ fontsize(f,15,"pixels")
 
 f = figure;
 f.Position = [40,800,1200*5/6*1/2,650*5/6];
-plot(points(1:m),E_lag_norm)
+plot(points(1:m),E_lag_loc)
 hold on
+plot(points(1:m),E_herm_loc)
+
+plot(points(1:m),E_lag_norm)
+
 plot(points(1:m),E_herm_norm)
 title("Interpolation in normal coordinates")
-legend("Lagrange","Hermite")
+legend("Lagrange loc","Hermite loc","Lagrange norm","Hermite norm")
 fontsize(f,15,"pixels")
 %[EL,EH] = error_on_interval_loc(u_data_loc,u_dot_data_loc,Data.data_u,Pu,0.03,0.05,0.001)
 
@@ -251,7 +255,7 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
 
 end
 
-function [U,P] = maxvol(U)
+function [U,    P] = maxvol(U)
     [n,p] = size(U);
     
     Usquare = U(1:p,1:p);
