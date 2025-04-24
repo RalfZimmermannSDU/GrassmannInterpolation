@@ -48,8 +48,8 @@ for i = 1:101
     U = curve2(t,Y0,Y1,Y2,Y3);
     Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % Well-behaved
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
-    e1 = norm(Q1*Q1'-U*U','fro');
-    e2 = norm(Q2*Q2'-U*U','fro');
+    e1 = norm(Q1*Q1'-U*U','fro'); % Well-behaved 
+    e2 = norm(Q2*Q2'-U*U','fro'); % Less well-behaved
 
     e1s(i) = e1;
     e2s(i) = e2;
@@ -62,6 +62,11 @@ plot(0:0.01:1,e2s)
 
 legend("Well-behaved","Less well-behaved")
 
+t0 = 0; t1 = 1;
+
+e1s = [];
+e2s = [];
+e3s = [];
 Data = cell(1,2);
 dData = cell(1,2);
 Data_P = cell(1,2);
@@ -73,6 +78,7 @@ cond(Data{1}(1:p,1:p))
 cond(Data{2}(1:p,1:p))
 
 [~,P] = maxvol(Data{1});
+%P = sparse(eye(n));
 Data_P{1} = P*Data{1};
 Data_P{2} = P*Data{2};
 dData_P{1} = P*dData{1};
@@ -81,23 +87,36 @@ cond(Data_P{1}(1:p,1:p))
 cond(Data_P{2}(1:p,1:p))
 
 for i = 1:101
-    t = (i-1)/100;
+    t = (i-1)/101*(t1-t0)+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
     Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % Well-behaved
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_herm',dData); % Less well-behaved
+    Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_herm',dData); % normal coords
+
+    % Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % Well-behaved
+    % Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
+    % Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_lag'); % normal coords
     e1 = norm(Q1*Q1'-U*U','fro');
     e2 = norm(Q2*Q2'-U*U','fro');
+    e3 = norm(Q3*Q3'-U*U','fro');
 
     e1s(i) = e1;
     e2s(i) = e2;
-
+    e3s(i) = e3;
 end
-figure
-plot(0:0.01:1,e1s)
-hold on
-plot(0:0.01:1,e2s)
 
-legend("Well-behaved","Less well-behaved")
+ts = (t0:0.01:t1);
+f = figure;
+f.Position = [40,800,1200*5/6*1/2,650*5/6];
+
+plot(ts,e1s)
+hold on
+plot(ts,e2s)
+hold on
+plot(ts,e3s)
+
+legend("Maxvol. local","local","normal")
+fontsize(f,15,"pixels")
 
 % norm(M.LocalCoordG(Data{1},n,p)-M.LocalCoordG(Data{2},n,p),'fro')
 % M.LC_distbound(Data{1},Data{2})

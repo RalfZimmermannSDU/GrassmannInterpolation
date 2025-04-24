@@ -294,12 +294,11 @@ end
 
 
 MatTools.dphi_cond_bound = @conditionnumber_phi_bound;
-
 function cb = conditionnumber_phi_bound(B)
     S = svd(B,'econ');
     mx = max(S.^2 ./ ((1+S.^2).^2));
     
-    
+    cb = sqrt(2)*sqrt( 1/(1+S(end)^2)^2 + mx )+1;
 end
 
 
