@@ -122,7 +122,7 @@ E_herm_norm = [];
 condsl = [];
 condsr = [];
 
-for j = 1:6
+for j = 1:5
     I = zeros(1,mm);
     t0 = Intervals(j);
     t1 = Intervals(j+1);
@@ -192,29 +192,65 @@ end
 
 
 [~,m] = size(E_lag_loc);
-f = figure;
-f.Position = [40,800,1200*5/6*1/2,650*5/6];
-plot(points(1:m),E_lag_loc)
-hold on
-plot(points(1:m),E_herm_loc)
-title("Interpolation in local coordinates")
-legend("Lagrange","Hermite")
-fontsize(f,15,"pixels")
-
-
-f = figure;
-f.Position = [40,800,1200*5/6*1/2,650*5/6];
-plot(points(1:m),E_lag_loc)
-hold on
-plot(points(1:m),E_herm_loc)
-
-plot(points(1:m),E_lag_norm)
-
-plot(points(1:m),E_herm_norm)
-title("Interpolation in normal coordinates")
-legend("Lagrange loc","Hermite loc","Lagrange norm","Hermite norm")
-fontsize(f,15,"pixels")
+% f = figure;
+% f.Position = [40,800,1200*5/6,650*5/6];
+% subplot(1,2,1)
+% plot(points(1:m),E_lag_loc)
+% hold on
+% plot(points(1:m),E_herm_loc)
+% xlabel("t")
+% ylabel("Rel. error")
+% title("Interpolation in local coordinates")
+% legend("Lagrange","Hermite")
+% fontsize(f,15,"pixels")
+% 
+% 
+% % f = figure;
+% % f.Position = [40,800,1200*5/6*1/2,650*5/6];
+% % plot(points(1:m),E_lag_loc)
+% % hold on
+% % plot(points(1:m),E_herm_loc)
+% subplot(1,2,2)
+% plot(points(1:m),E_lag_norm)
+% hold on
+% plot(points(1:m),E_herm_norm)
+% title("Interpolation in normal coordinates")
+% legend("Lagrange","Hermite ")
+% 
+% xlabel("t")
+% ylabel("Rel. error")
+% fontsize(f,15,"pixels")
 %[EL,EH] = error_on_interval_loc(u_data_loc,u_dot_data_loc,Data.data_u,Pu,0.03,0.05,0.001)
+
+[~,m] = size(E_lag_loc);
+f = figure;
+f.Position = [40,800,1200*5/6,650*5/6];
+
+subplot(1,2,1)
+plot(points(1:m),E_lag_loc)
+hold on
+plot(points(1:m),E_lag_norm)
+xlabel("I_a")
+ylabel("Rel. error")
+title("Error (Lagrange)")
+legend("MV coords","Normal coords")
+fontsize(f,15,"pixels")
+
+
+subplot(1,2,2)
+plot(points(1:m),E_herm_loc)
+hold on
+plot(points(1:m),E_herm_norm)
+xlabel("I_a")
+ylabel("Rel. error")
+title("Error (Hermite)")
+legend("MV coords","Normal coords")
+fontsize(f,15,"pixels")
+sgtitle("Relative interpolation errors")
+
+%exportgraphics(f,"experiment_2.png","Resolution",300);
+
+
 
 
 function [E_lag,E_herm] = error_on_interval_loc(Data,deriv_data,true_data,Pd,t0,t1,h)
@@ -229,9 +265,10 @@ function [E_lag,E_herm] = error_on_interval_loc(Data,deriv_data,true_data,Pd,t0,
         I_herm = Pd'*Interpolate_Gr(Ias, Data,t, 'local_herm',deriv_data);
         
         P = true_data{i}*true_data{i}';
+        NP = norm(P,"fro");
     
-        E_lag(i) = norm(P - I_lag*I_lag','fro');
-        E_herm(i) = norm(P - I_herm*I_herm','fro');
+        E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
+        E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
 
 end
@@ -248,14 +285,15 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
         I_herm = Interpolate_Gr(Ias, Data,t, 'normal_herm',deriv_data);
         
         P = true_data{i}*true_data{i}';
-    
-        E_lag(i) = norm(P - I_lag*I_lag','fro');
-        E_herm(i) = norm(P - I_herm*I_herm','fro');
+        NP = norm(P,"fro");
+        
+        E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
+        E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
 
 end
 
-function [U,    P] = maxvol(U)
+function [U, P] = maxvol(U)
     [n,p] = size(U);
     
     Usquare = U(1:p,1:p);
