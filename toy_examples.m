@@ -41,6 +41,7 @@ U = curve2(t,Y0,Y1,Y2,Y3);
 e2 = norm(Q2*Q2'-U*U','fro')
 
 
+
 e1s = [];
 e2s = [];
 e3s = [];
@@ -49,7 +50,7 @@ fe1s = [];
 fe2s = [];
 fe3s = [];
 for i = 1:101
-    t = (i-1)/100;
+    t = (i-1)/100*t1+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
     Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % Well-behaved
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Less well-behaved
@@ -71,23 +72,33 @@ for i = 1:101
 
 end
 
-figure
-plot(0:0.01:1,fe1s)
-hold on
-plot(0:0.01:1,fe2s)
-plot(0:0.01:1,fe3s)
+ts = (t0:0.01:t1);
+
+
 
 f = figure;
-f.Position = [40,800,1200*5/6,650*5/6];
+f.Position = [40,800,1200*5/6,650*5/6*2];
 
-subplot(1,2,1)
-plot(0:0.01:1,e1s)
+subplot(2,2,1)
+plot(ts,e1s)
 hold on
-plot(0:0.01:1,e2s)
-plot(0:0.01:1,e3s)
+plot(ts,e2s)
+plot(ts,e3s)
 legend("MV coords","Local coords","Normal coords")
-title("Lagrange interpolation")
-t0 = 0; t1 = 1;
+title("Error (Lagrange)")
+
+xlabel("t")
+ylabel("Rel. error")
+
+subplot(2,2,3)
+semilogy(ts,fe1s)
+hold on
+semilogy(ts,fe2s)
+semilogy(ts,fe3s)
+xlabel("t")
+ylabel("Feasibility")
+legend("MV coords","Local coords","Normal coords")
+title("Feasibility (Lagrange)")
 
 e1s = [];
 e2s = [];
@@ -130,6 +141,12 @@ for i = 1:101
     e2 = norm(Q2*Q2'-U*U','fro')/NU;
     e3 = norm(Q3*Q3'-U*U','fro')/NU;
 
+    % Making sure that Q3 is indeed a Stiefel matrix
+    % P3 = Q3*Q3';
+    % [Q3,S,~] = svd(P3,'econ');
+    % Q3 = Q3(:,1:p);
+    % e3 = norm(Q3*Q3'-U*U','fro')/NU;
+
     e1s(i) = e1;
     e2s(i) = e2;
     e3s(i) = e3;
@@ -141,27 +158,34 @@ for i = 1:101
 end
 
 
-ts = (t0:0.01:t1);
-subplot(1,2,2)
+
+subplot(2,2,2)
 plot(ts,e1s)
 hold on
 plot(ts,e2s)
 hold on
 plot(ts,e3s)
+xlabel("t")
+ylabel("Rel. error")
 
 legend("MV coords","Local coords","Normal coords")
-title("Hermite interpolation")
+title("Error (Hermite)")
 
-sgtitle("Relative interpolation error")
+subplot(2,2,4)
+semilogy(ts,fe1s)
+hold on
+semilogy(ts,fe2s)
+semilogy(ts,fe3s)
+legend("MV coords","Local coords","Normal coords")
+title("Feasibility (Hermite)")
+xlabel("t")
+ylabel("Feasibility")
+sgtitle("Relative interpolation errors and feasibilities")
 
 fontsize(f,15,"pixels")
-exportgraphics(f,"experiment_1.png","Resolution",300);
+    exportgraphics(f,"experiment_1.png","Resolution",300);
 
-figure
-plot(0:0.01:1,fe1s)
-hold on
-plot(0:0.01:1,fe2s)
-plot(0:0.01:1,fe3s)
+
 
 % norm(M.LocalCoordG(Data{1},n,p)-M.LocalCoordG(Data{2},n,p),'fro')
 % M.LC_distbound(Data{1},Data{2})

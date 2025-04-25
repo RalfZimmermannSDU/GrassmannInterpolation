@@ -51,13 +51,21 @@ if routine_flag == "normal_herm"
     
     h = 0.001;
     Delta_p = FDapprox(Mat, p, q, pdot, h);
-    
+    %norm(q'*Delta_p+Delta_p'*q,'fro')
     % Interpolate
     Y = HermiteInterpol(xi, 0, Delta_p, qdot, time_data(1), time_data(2), t);
 
+    % Check that Y is in the tangent space of q 
+    %norm(q'*Y+Y'*q,'fro')
+
     % Map back to manifold
     Y = Mat.ExpG(q,Y);
+    
+    % Check that Y is a Stiefel matrix
+    %norm(Y'*Y-eye(10),'fro')
 
+    % Check Y*Y' = Y*Y'*Y*Y' (does Y give rise to a projector?)
+    %norm( Y*(Y'*Y)*Y' -Y*Y','fro')
 end
 
 if routine_flag == "local_lag"
