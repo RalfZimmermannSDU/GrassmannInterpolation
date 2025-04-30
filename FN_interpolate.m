@@ -1,6 +1,6 @@
 % Interpolate the FN system
 clear 
-close all
+%close all
 
 Data = load("snapshots_FN_model/snapshot_N_91_highres.mat");
 

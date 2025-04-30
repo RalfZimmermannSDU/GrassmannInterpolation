@@ -113,7 +113,8 @@ cond(Data{1}(1:p,1:p))
 [Data{2},dData{2}] = curve2(t1,Y0,Y1,Y2,Y3);
 cond(Data{2}(1:p,1:p))
 
-[~,P] = maxvol(Data{1});
+[~,P] = maxvol(Data{2});
+%[~,P] = maxvol(Data{1});
 %P = sparse(eye(n));
 Data_P{1} = P*Data{1};
 Data_P{2} = P*Data{2};
@@ -146,6 +147,10 @@ for i = 1:101
     % [Q3,S,~] = svd(P3,'econ');
     % Q3 = Q3(:,1:p);
     % e3 = norm(Q3*Q3'-U*U','fro')/NU;
+    % W = P*Q1;
+    % cond(Q1(1:p,1:p),'fro')
+    % cond(W(1:p,1:p),'fro')
+    % cond(Q2(1:p,1:p),'fro')
 
     e1s(i) = e1;
     e2s(i) = e2;

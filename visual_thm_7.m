@@ -52,8 +52,8 @@ for i = 1:m
     Btilde = M.LocalCoordG(V,n,p);
     conds(i) = cond(V(1:p,1:p),'fro');
     Data(i,1) = t;
-    Data(i,2) = asin(cond_d_bound*norm(B-Btilde,'fro')/2);
-    Data(i,3) = norm(B-Btilde,'fro')/2;
+    Data(i,2) = asin(cond_d_bound*norm(B-Btilde,'fro'));
+    Data(i,3) = norm(B-Btilde,'fro');
     if ~(t < Data(i,3))
         disp("Error");
     end
@@ -69,14 +69,14 @@ hold on
 xlabel("Manifold distance")
 ylabel("Distance between local coords")
 
-title("dist(U,V) vs.  ||B_1-B_2||_0")
+title("dist(U,V) vs.  ||B_1-B_2||_F")
 
 subplot(1,2,2)
 plot(Data(:,1),Data(:,2),'x')
 grid on
 xlabel("Manifold distance")
 ylabel("Bound")
-title("dist(U,V) vs. arcsin(|C ||B_1-B_2||_0)")
+title("dist(U,V) vs. arcsin(|C ||B_1-B_2||_F)")
 fontsize(f,15,"pixels")
 
 exportgraphics(f,"theorem_7.png","Resolution",300);
