@@ -1,9 +1,9 @@
 % Interpolate the FN system
 clear 
-%close all
+close all
 
-Data = load("snapshots_FN_model/snapshot_N_91_highres.mat");
-
+Data = load("snapshots_FN_model/snapshot_N_91.mat");
+Data_ref = load("snapshots_FN_model/snapshot_N_501.MAT"); 
 
 % First, consider two points
 points = 0.03:0.001:0.12;
@@ -106,11 +106,13 @@ fontsize(f,15,"pixels")
 
 Intervals = [0.03 0.05 0.07 0.09 0.11];
 Intervals = 0.03:0.01:0.11;
+points = 0.03:0.001:0.12;
 
 p = 8;
-h = 0.001;
+h = 0.0001;
+m = 901;
 
-members = 11;
+members = 101;
 
 E_lag_loc = [];
 E_herm_loc = [];
@@ -163,7 +165,7 @@ for j = 1:5
     
     true_data = cell(1,members);
     for k = 1:members
-        true_data{k} = Data.data_u{(members-1)*(j-1) + k};
+        true_data{k} = Data_ref.data_u{(members-1)*(j-1) + k}(:,1:p);
     end
     u_data_loc = cell(1,n);
     v_data_loc = cell(1,n);
@@ -225,7 +227,7 @@ end
 [~,m] = size(E_lag_loc);
 f = figure;
 f.Position = [40,800,1200*5/6,650*5/6];
-
+points = 0.03:0.0001:0.12;
 subplot(1,2,1)
 plot(points(1:m),E_lag_loc)
 hold on
