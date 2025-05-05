@@ -159,6 +159,15 @@ sgtitle("Relative interpolation errors and feasibilities")
 fontsize(f,15,"pixels")
 %exportgraphics(f,"experiment_1.png","Resolution",300);
 
+
+% Table of condition numbers
+Point = [0,1]';
+Before = [c1,c2]';
+After = [p_c1,p_c2]';
+
+T = table(Point,Before,After);
+disp(T);
+
 end
 function [Q,dQ] = curve2(t,Y0,Y1,Y2,Y3)
     M = matrix_tools();

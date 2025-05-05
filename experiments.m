@@ -13,17 +13,20 @@
 snapshots_FN = 1;
 
 % Experiments to run
-run_exp_1 = 1;
+run_exp_1 = 0;
 run_exp_2 = 1;
 
 
 %% Experiment 1: Q factor experiment
 n = 1000;
-p = 10;
+p = 100;
 t0 = 0; t1 = 1;
-m = 100;
+m = 10;
 LoR = 'R';
 maxsteps = 30;
 if run_exp_1
     experiment1(n,p,t0,t1,m,'R',maxsteps);
 end
+
+
+
