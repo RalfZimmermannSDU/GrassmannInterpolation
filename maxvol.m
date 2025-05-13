@@ -33,9 +33,9 @@ function [U,P] = maxvol(U,maxsteps)
     end
     cond_end = cond(Usquare);
     P = E2;
-    disp("Maxvol algorithm:")
-    disp("num. iter " + num2str(k));
-    disp("Condition number before " + num2str(cond_start))
-    disp("Condition number after  " + num2str(cond_end))
+    % disp("Maxvol algorithm:")
+    % disp("num. iter " + num2str(k));
+    % disp("Condition number before " + num2str(cond_start))
+    % disp("Condition number after  " + num2str(cond_end))
 
 end

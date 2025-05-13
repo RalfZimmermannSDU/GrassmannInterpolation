@@ -86,10 +86,10 @@ if routine_flag == "local_lag"
 
     
     % Map back to manifold
-    [Y,~] = qr([eye(p); Y],'econ');
+    %[Y,~] = qr([eye(p); Y],'econ');
 
-    % R = chol(eye(p) + Y'*Y); % Note the transpose for consistency
-    % Y = [eye(p); Y] / inv(R);
+    R = chol(eye(p) + Y'*Y);
+    Y = [eye(p); Y] / (R);
 end
 
 if routine_flag == "local_herm"
@@ -109,9 +109,9 @@ if routine_flag == "local_herm"
     
     % Interpolate
     Y = HermiteInterpol(lp, lq, lpdot, lqdot,time_data(1), time_data(2), t);
-    
+    %[Y,~] = qr([eye(p); Y],'econ');
     % Map back to manifold
-    R = chol(eye(k) + Y'*Y); % Note the transpose for consistency
+    R = chol(eye(k) + Y'*Y);
     Y = [eye(k); Y] / R;
 end
 

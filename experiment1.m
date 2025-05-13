@@ -20,11 +20,11 @@ dData = cell(1,2);
 dData_P = cell(1,2);
 
 [Data{1}, dData{1}] = curve2(t0,Y0,Y1,Y2,Y3);
-c1 = cond(Data{1}(1:p,1:p));
+c1 = norm(eye(p)/Data{1}(1:p,1:p) , 'fro');
 [Data{2},dData{2}] = curve2(t1,Y0,Y1,Y2,Y3);
-c2 = cond(Data{2}(1:p,1:p));
+c2 = norm(eye(p)/Data{2}(1:p,1:p) , 'fro');
 
-if LoR == 'L'
+if LoR == "L"
     [~,P] = maxvol(Data{1},maxsteps);
     Data_P{1} = P*Data{1};
     Data_P{2} = P*Data{2};
@@ -38,8 +38,8 @@ else
     dData_P{2} = P*dData{2};
 end
 
-p_c1 = cond(Data_P{1}(1:p,1:p));
-p_c2 = cond(Data_P{2}(1:p,1:p));
+p_c1 = norm(eye(p)/Data_P{1}(1:p,1:p) , 'fro');
+p_c2 = norm(eye(p)/Data_P{2}(1:p,1:p) , 'fro');
 
 
 e1s = [];
@@ -157,7 +157,7 @@ ylabel("Feasibility")
 sgtitle("Relative interpolation errors and feasibilities")
 
 fontsize(f,15,"pixels")
-%exportgraphics(f,"experiment_1.png","Resolution",300);
+exportgraphics(f,"experiment_1.png","Resolution",300);
 
 
 % Table of condition numbers

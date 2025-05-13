@@ -1,5 +1,5 @@
 % Simulate the FitzHigh-Nagumo model
-function Y = FN_full_model(Ia)
+function Y = FN_full_model(Ia,nt)
 
 if nargin < 1
     Ia = 0.03;
@@ -8,7 +8,7 @@ end
 T = 8; % Final time
 L = 1; % x \in [0,L]
 
-nt = 10e6;
+%nt = 10e5;
 nx = 1024;
 
 dx = L /(nx + 2); % spatial stepsize
