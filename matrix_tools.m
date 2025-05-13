@@ -113,7 +113,7 @@ MatTools.ExpG = @ExpGrassmann;
         [Q,S,V] = svd(Dir,'econ');
         Scos = diag(cos(diag(S)));
         Ssin = diag(sin(diag(S)));
-        
+
         Y = U * (V*Scos * V') + Q * (Ssin * V');
 
         %[Y,~] = qr(Y,'econ');

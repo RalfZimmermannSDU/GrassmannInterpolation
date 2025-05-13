@@ -154,6 +154,9 @@ for j = 1:((t1_glob - t0_glob)/h)
             v_data{k} = Data.data_v{i}(:,1:p);
             u_dot_data{k} = Data.data_u_dot{i}(:,1:p);
             v_dot_data{k} = Data.data_v_dot{i}(:,1:p);
+
+            u_dot_data{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
+            v_dot_data{k} = Data.data_v_dot{i}(:,1:p);
             k = k + 1;
         end
         Data.data_u{i} = Data.data_u{i}(:,1:p);

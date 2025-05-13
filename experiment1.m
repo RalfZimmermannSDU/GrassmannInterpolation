@@ -24,6 +24,11 @@ c1 = norm(eye(p)/Data{1}(1:p,1:p) , 'fro');
 [Data{2},dData{2}] = curve2(t1,Y0,Y1,Y2,Y3);
 c2 = norm(eye(p)/Data{2}(1:p,1:p) , 'fro');
 
+P1 = Data{1}*Data{1}';
+dData{1} = (dData{1}*Data{1}'+Data{1}*dData{1}')*Data{1};
+dData{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
+
+
 if LoR == "L"
     [~,P] = maxvol(Data{1},maxsteps);
     Data_P{1} = P*Data{1};
