@@ -54,7 +54,7 @@ end
 
 p = 8; % has to be <= p_snap.
 
-% Load data 
+% Load data
 Data = load("snapshots_FN_model/snapshot_N_91.mat"); % Used as interpolation data
 Data_ref = load("snapshots_FN_model/snapshot_N_501.mat"); % Used for high_res plots
 
