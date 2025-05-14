@@ -19,16 +19,17 @@ Data_P = cell(1,2);
 dData = cell(1,2);
 dData_P = cell(1,2);
 
+
 [Data{1}, dData{1}] = curve2(t0,Y0,Y1,Y2,Y3);
 c1 = norm(eye(p)/Data{1}(1:p,1:p) , 'fro');
 [Data{2},dData{2}] = curve2(t1,Y0,Y1,Y2,Y3);
 c2 = norm(eye(p)/Data{2}(1:p,1:p) , 'fro');
 
-P1 = Data{1}*Data{1}';
+% Obtain horizontal lift to St(n,p)
 dData{1} = (dData{1}*Data{1}'+Data{1}*dData{1}')*Data{1};
 dData{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
 
-
+% Apply maxvol method
 if LoR == "L"
     [~,P] = maxvol(Data{1},maxsteps);
     Data_P{1} = P*Data{1};
@@ -46,6 +47,8 @@ end
 p_c1 = norm(eye(p)/Data_P{1}(1:p,1:p) , 'fro');
 p_c2 = norm(eye(p)/Data_P{2}(1:p,1:p) , 'fro');
 
+
+% Lagrange interpolation
 
 e1s = [];
 e2s = [];
@@ -104,6 +107,9 @@ ylabel("Feasibility")
 legend("MV coords","Local coords","Normal coords")
 title("Feasibility (Lagrange)")
 
+
+% Hermite interpolation
+
 e1s = [];
 e2s = [];
 e3s = [];
@@ -112,8 +118,6 @@ fe1s = [];
 fe2s = [];
 fe3s = [];
 
-
-% Hermite
 for i = 1:(m+1)
     t = (i-1)/m*t1+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
@@ -165,7 +169,7 @@ fontsize(f,15,"pixels")
 exportgraphics(f,"experiment_1.png","Resolution",300);
 
 
-% Table of condition numbers
+% Table of norms of inverted upper p x p blocks before and after maxvol
 Point = [0,1]';
 Before = [c1,c2]';
 After = [p_c1,p_c2]';

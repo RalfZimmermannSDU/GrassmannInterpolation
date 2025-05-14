@@ -11,7 +11,6 @@
 clear 
 close all
 
-
 % Flags
 snapshots_FN = 0;
 
