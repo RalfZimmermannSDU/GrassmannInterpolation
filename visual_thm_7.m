@@ -15,7 +15,6 @@ B = M.LocalCoordG(U,n,p);
 bound = sqrt(5/2)+1;
 Delta = P*Delta/(norm(Delta,'fro')*0.5);
 
-%P = U*U';
 % norm_local = [];
 % dist_man = [];
 % for i = 1:200
@@ -30,8 +29,6 @@ Delta = P*Delta/(norm(Delta,'fro')*0.5);
 %     dist_man(i) = 0.5*norm(Delta,'fro');
 % end
 % [norm_local,I] = sort(norm_local,'ascend');
-
-%f = @(x) asin((sqrt(10) + 2) * x);
 
 f = @(x) asin(bound * x);
 

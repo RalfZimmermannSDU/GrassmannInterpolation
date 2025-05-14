@@ -16,8 +16,8 @@ close all
 snapshots_FN = 0;
 
 % Experiments to run
-run_exp_1 = 1;
-run_exp_2 = 0;
+run_exp_1 = 0;
+run_exp_2 = 1;
 
 
 %% Experiment 1: Q factor experiment
@@ -38,7 +38,7 @@ t0 = 0.03;
 t1 = 0.08;
 h = 0.01;
 h2 = 0.0001;
-m = 501;
+m = 101;
 points = linspace(t0,t1,m);
 
 % n should not be changed, but p can be varied to a small extend. 

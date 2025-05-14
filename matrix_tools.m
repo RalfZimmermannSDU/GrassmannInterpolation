@@ -124,6 +124,13 @@ MatTools.dExpG = @dExpGrassmann;
 
     end
 
+MatTools.checkProjtan = @checkProjtangent;
+    function e = checkProjtangent(U,v)
+        P = U*U';
+        w = (v*U'+U*v');
+        e = norm(P*w+w*P-w);
+    end
+
 % Grassmann log
 MatTools.LogG = @LogGrassmann;
     function Log = LogGrassmann(U,Y)
