@@ -1,8 +1,7 @@
 # GrassmannInterpolation
-Methods for interpolation on the Grassmann manifold and applications
+Methods for interpolation on the Grassmann manifold and applications.
 
-In this directory we provide the reader with source code for the two experiments presented in our paper. 
+Authors: Rasmus Jensen and Ralf Zimmermann, University of Southern Denmark. 
 
-Due to upload limitations, one has to generate the snapshot matrices using the script *FN_create_snapshots.m*. 
+In this directory we provide the reader with source code for the two experiments presented in our paper, as well as scripts producing the two Matlab figures appearing in the text body. 
 
-## 
