@@ -46,9 +46,11 @@ for j = 1:((t1_glob - t0_glob)/h)
             u_dot_data{k} = Data.data_u_dot{i}(:,1:p);
             v_dot_data{k} = Data.data_v_dot{i}(:,1:p);
 
+            % Compute the horizontal lifts
             u_dot_data{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
             v_dot_data{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
-            %M.checkProjtan(u_data{k},u_dot_data{k})
+
+            M.checkProjtan(u_data{k},u_dot_data{k})
             k = k + 1;
 
         end
@@ -94,6 +96,13 @@ for j = 1:((t1_glob - t0_glob)/h)
         v_dot_data_loc{i} = Pv*v_dot_data{i};
     end
 
+
+    % Store before / after upper p x p block norm (Only data for the u - part is stored)
+    data_norms_l(j) = norm(eye(p) / u_data{1}(1:p,1:p),'fro');
+    data_norms_r(j) = norm(eye(p) / u_data{2}(1:p,1:p),'fro');
+    P_data_norms_l(j) = norm(eye(p) / u_data_loc{1}(1:p,1:p),'fro');
+    P_data_norms_r(j) = norm(eye(p) / u_data_loc{2}(1:p,1:p),'fro');
+
     [EL,EH] = error_on_interval_loc(u_data_loc,u_dot_data_loc,true_data,Pu,t0,t1,h2);
     E_lag_loc = [E_lag_loc(1:end-1) EL];
     E_herm_loc = [E_herm_loc(1:end-1) EH];
@@ -137,7 +146,7 @@ legend("MV coords","Normal coords")
 fontsize(f,15,"pixels")
 sgtitle("Relative interpolation errors")
 
-%exportgraphics(f,"experiment_2.png","Resolution",300);
+exportgraphics(f,"experiment_2.png","Resolution",300);
 
 end
 
@@ -148,18 +157,23 @@ function [E_lag,E_herm] = error_on_interval_loc(Data,deriv_data,true_data,Pd,t0,
     Ias = [t0 t1];
     E_lag = [];
     E_herm = [];
+    %feas_l = [];
+    %feas_h = [];
     for i = 1:m
         t = ts(i);
         I_lag = Pd'*Interpolate_Gr(Ias, Data,t, 'local_lag');
         I_herm = Pd'*Interpolate_Gr(Ias, Data,t, 'local_herm',deriv_data);
-        
+        %feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
+        %feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
         P = true_data{i}*true_data{i}';
         NP = norm(P,"fro");
     
         E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
         E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
-
+    
+    % figure
+    % plot(feas_l)
 end
 
 function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
@@ -168,11 +182,14 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
     Ias = [t0 t1];
     E_lag = [];
     E_herm = [];
+    % feas_l = [];
+    % feas_h = [];
     for i = 1:m
         t = ts(i);
         I_lag = Interpolate_Gr(Ias, Data,t, 'normal_lag');
         I_herm = Interpolate_Gr(Ias, Data,t, 'normal_herm',deriv_data);
-        
+        % feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
+        % feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
         P = true_data{i}*true_data{i}';
         NP = norm(P,"fro");
         
