@@ -36,6 +36,9 @@ for j = 1:((t1_glob - t0_glob)/h)
     u_data = cell(1,n);
     v_data = cell(1,n);
     u_dot_data = cell(1,n);
+    u_dot_data_hor = cell(1,n);
+    v_dot_data_hor = cell(1,n);
+
     v_dot_data = cell(1,n);
     
     k = 1;
@@ -47,10 +50,10 @@ for j = 1:((t1_glob - t0_glob)/h)
             v_dot_data{k} = Data.data_v_dot{i}(:,1:p);
 
             % Compute the horizontal lifts
-            u_dot_data{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
-            v_dot_data{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
+            u_dot_data_hor{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
+            v_dot_data_hor{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
 
-            M.checkProjtan(u_data{k},u_dot_data{k})
+            M.checkProjtan(u_data{k},u_dot_data_hor{k})
             k = k + 1;
 
         end
@@ -107,7 +110,7 @@ for j = 1:((t1_glob - t0_glob)/h)
     E_lag_loc = [E_lag_loc(1:end-1) EL];
     E_herm_loc = [E_herm_loc(1:end-1) EH];
     
-    [EL,EH] = error_on_interval(u_data,u_dot_data,true_data,t0,t1,h2);
+    [EL,EH] = error_on_interval(u_data,u_dot_data_hor,true_data,t0,t1,h2);
     E_lag_norm = [E_lag_norm(1:end-1) EL];
     E_herm_norm = [E_herm_norm(1:end-1) EH];
 end
