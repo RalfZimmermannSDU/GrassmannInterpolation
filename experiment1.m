@@ -17,6 +17,7 @@ Data = cell(1,2);
 Data_P = cell(1,2);
 
 dData = cell(1,2);
+dDatahor = cell(1,2);
 dData_P = cell(1,2);
 
 
@@ -26,8 +27,8 @@ c1 = norm(eye(p)/Data{1}(1:p,1:p) , 'fro');
 c2 = norm(eye(p)/Data{2}(1:p,1:p) , 'fro');
 
 % Obtain horizontal lift to St(n,p)
-dData{1} = (dData{1}*Data{1}'+Data{1}*dData{1}')*Data{1};
-dData{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
+dDatahor{1} = (dData{1}*Data{1}'+Data{1}*dData{1}')*Data{1};
+dDatahor{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
 
 % Apply maxvol method
 if LoR == "L"
@@ -123,7 +124,7 @@ for i = 1:(m+1)
     U = curve2(t,Y0,Y1,Y2,Y3);
     Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % MV coords
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_herm',dData); % standard local coords
-    Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_herm',dData); % Normal 
+    Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_herm',dDatahor); % Normal 
     
     NU = norm(U*U','fro');
     e1 = norm(Q1*Q1'-U*U','fro')/NU; % MV coords
