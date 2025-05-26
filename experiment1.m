@@ -30,6 +30,7 @@ c2 = norm(eye(p)/Data{2}(1:p,1:p) , 'fro');
 dDatahor{1} = (dData{1}*Data{1}'+Data{1}*dData{1}')*Data{1};
 dDatahor{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
 
+
 % Apply maxvol method
 if LoR == "L"
     [~,P] = maxvol(Data{1},maxsteps);
@@ -88,10 +89,10 @@ f = figure;
 f.Position = [40,800,1200*5/6,650*5/6*2];
 
 subplot(2,2,1)
-plot(ts,e1s)
+plot(ts,e1s,'-')
 hold on
-plot(ts,e2s)
-plot(ts,e3s)
+plot(ts,e2s,'--')
+plot(ts,e3s,'-.')
 legend("MV coords","Local coords","Normal coords")
 title("Error (Lagrange)")
 
@@ -99,10 +100,10 @@ xlabel("t")
 ylabel("Rel. error")
 
 subplot(2,2,3)
-semilogy(ts,fe1s)
+semilogy(ts,fe1s,'-')
 hold on
-semilogy(ts,fe2s)
-semilogy(ts,fe3s)
+semilogy(ts,fe2s,'--')
+semilogy(ts,fe3s,'-.')
 xlabel("t")
 ylabel("Feasibility")
 legend("MV coords","Local coords","Normal coords")
@@ -144,11 +145,11 @@ end
 
 
 subplot(2,2,2)
-plot(ts,e1s)
+plot(ts,e1s,'-')
 hold on
-plot(ts,e2s)
+plot(ts,e2s,'--')
 hold on
-plot(ts,e3s)
+plot(ts,e3s,'-.')
 xlabel("t")
 ylabel("Rel. error")
 
@@ -156,17 +157,17 @@ legend("MV coords","Local coords","Normal coords")
 title("Error (Hermite)")
 
 subplot(2,2,4)
-semilogy(ts,fe1s)
+semilogy(ts,fe1s,'-')
 hold on
-semilogy(ts,fe2s)
-semilogy(ts,fe3s)
+semilogy(ts,fe2s,'--')
+semilogy(ts,fe3s,'-.')
 legend("MV coords","Local coords","Normal coords")
 title("Feasibility (Hermite)")
 xlabel("t")
 ylabel("Feasibility")
 sgtitle("Relative interpolation errors and feasibilities")
 
-fontsize(f,15,"pixels")
+fontsize(f,18,"pixels")
 exportgraphics(f,"experiment_1.png","Resolution",300);
 
 

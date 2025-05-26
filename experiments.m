@@ -15,8 +15,8 @@ close all
 snapshots_FN = 0;
 
 % Experiments to run
-run_exp_1 = 0;
-run_exp_2 = 1;
+run_exp_1 = 1;
+run_exp_2 = 0;
 
 
 %% Experiment 1: Q factor experiment
@@ -61,19 +61,4 @@ m2 = 51;
 if run_exp_2
     FN_interpolate(p,Data,Data_ref,points,m2,t0,t1,h,h2,maxsteps)
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

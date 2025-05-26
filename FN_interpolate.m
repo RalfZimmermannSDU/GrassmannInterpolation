@@ -52,8 +52,9 @@ for j = 1:((t1_glob - t0_glob)/h)
             % Compute the horizontal lifts
             u_dot_data_hor{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
             v_dot_data_hor{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
-
-            M.checkProjtan(u_data{k},u_dot_data_hor{k})
+            
+            % Check if the horizontal lifts are indeed horizontal
+            norm(u_data{1}'*u_dot_data_hor{1},'fro')
             k = k + 1;
 
         end
@@ -130,23 +131,23 @@ f.Position = [40,800,1200*5/6,650*5/6];
 subplot(1,2,1)
 plot(points(1:m),E_lag_loc)
 hold on
-plot(points(1:m),E_lag_norm)
+plot(points(1:m),E_lag_norm,'--')
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Lagrange)")
 legend("MV coords","Normal coords")
-fontsize(f,15,"pixels")
+
 
 
 subplot(1,2,2)
 plot(points(1:m),E_herm_loc)
 hold on
-plot(points(1:m),E_herm_norm)
+plot(points(1:m),E_herm_norm,'--')
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Hermite)")
 legend("MV coords","Normal coords")
-fontsize(f,15,"pixels")
+fontsize(f,18,"pixels")
 sgtitle("Relative interpolation errors")
 
 exportgraphics(f,"experiment_2.png","Resolution",300);
@@ -160,14 +161,14 @@ function [E_lag,E_herm] = error_on_interval_loc(Data,deriv_data,true_data,Pd,t0,
     Ias = [t0 t1];
     E_lag = [];
     E_herm = [];
-    %feas_l = [];
-    %feas_h = [];
+    % feas_l = [];
+    % feas_h = [];
     for i = 1:m
         t = ts(i);
         I_lag = Pd'*Interpolate_Gr(Ias, Data,t, 'local_lag');
         I_herm = Pd'*Interpolate_Gr(Ias, Data,t, 'local_herm',deriv_data);
-        %feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
-        %feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
+        % feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
+        % feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
         P = true_data{i}*true_data{i}';
         NP = norm(P,"fro");
     
@@ -176,7 +177,7 @@ function [E_lag,E_herm] = error_on_interval_loc(Data,deriv_data,true_data,Pd,t0,
     end
     
     % figure
-    % plot(feas_l)
+    % plot(feas_h)
 end
 
 function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
@@ -185,19 +186,20 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
     Ias = [t0 t1];
     E_lag = [];
     E_herm = [];
-    % feas_l = [];
-    % feas_h = [];
+    %feas_l = [];
+    %feas_h = [];
     for i = 1:m
         t = ts(i);
         I_lag = Interpolate_Gr(Ias, Data,t, 'normal_lag');
         I_herm = Interpolate_Gr(Ias, Data,t, 'normal_herm',deriv_data);
-        % feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
-        % feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
+        feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
+        feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
         P = true_data{i}*true_data{i}';
         NP = norm(P,"fro");
         
         E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
         E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
-
+    %figure
+    %plot(feas_l)
 end

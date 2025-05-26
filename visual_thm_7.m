@@ -15,20 +15,20 @@ B = M.LocalCoordG(U,n,p);
 bound = sqrt(5/2)+1;
 Delta = P*Delta/(norm(Delta,'fro')*0.5);
 
-% norm_local = [];
-% dist_man = [];
-% for i = 1:200
-%     C = B + rand(1)*rand(n-p,p) / (150);
-%     norm_local(i) = norm(B-C,'fro');
-% 
-%     P = M.ParamG(C);
-%     [V,~,~] = svd(P,'econ');
-%     V = V(:,1:p);
-% 
-%     Delta = M.LogG(U,V);
-%     dist_man(i) = 0.5*norm(Delta,'fro');
-% end
-% [norm_local,I] = sort(norm_local,'ascend');
+norm_local = [];
+dist_man = [];
+for i = 1:200
+    C = B + rand(1)*rand(n-p,p) / (150);
+    norm_local(i) = norm(B-C,'fro');
+
+    P = M.ParamG(C);
+    [V,~,~] = svd(P,'econ');
+    V = V(:,1:p);
+
+    Delta = M.LogG(U,V);
+    dist_man(i) = 0.5*norm(Delta,'fro');
+end
+[norm_local,I] = sort(norm_local,'ascend');
 
 f = @(x) asin(bound * x);
 
@@ -94,7 +94,7 @@ fplot(f,[0.001,(1/bound-0.02)])
 ylim([-0.001,1.5])
 xlabel("Distance in local coordinates")
 ylabel("Distance on manifold")
-fontsize(fig,15,"pixels")
+fontsize(fig,18,"pixels")
 title("n=10, p = 4")
 grid on
 legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")

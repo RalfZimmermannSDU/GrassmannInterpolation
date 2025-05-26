@@ -45,6 +45,6 @@ xlabel("Euclidean disrance")
 ylabel("Distance between local coords")
 title("Euclidean dist vs. local coord dist.")
 
-fontsize(f,15,"pixels")
+fontsize(f,18,"pixels")
 
 exportgraphics(f,"lemma_4.png","Resolution",300);
