@@ -51,8 +51,9 @@ for j = 1:((t1_glob - t0_glob)/h)
 
             % Compute the horizontal lifts
             u_dot_data_hor{k} = (u_dot_data{k}*u_data{k}'+u_data{k}*u_dot_data{k}')*u_data{k};
-            v_dot_data_hor{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
-            
+            %v_dot_data_hor{k} = (v_dot_data{k}*v_data{k}'+v_data{k}*v_dot_data{k}')*v_data{k};
+            %u_dot_data_hor{k} = u_dot_data{k};
+
             % Check if the horizontal lifts are indeed horizontal
             norm(u_data{1}'*u_dot_data_hor{1},'fro')
             k = k + 1;
@@ -129,9 +130,9 @@ f = figure;
 f.Position = [40,800,1200*5/6,650*5/6];
 %points = 0.03:0.0001:0.12;
 subplot(1,2,1)
-plot(points(1:m),E_lag_loc)
+plot(points(1:m),E_lag_loc,'LineWidth',1)
 hold on
-plot(points(1:m),E_lag_norm,'--')
+plot(points(1:m),E_lag_norm,'--','LineWidth',1)
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Lagrange)")
@@ -140,9 +141,9 @@ legend("MV coords","Normal coords")
 
 
 subplot(1,2,2)
-plot(points(1:m),E_herm_loc)
+plot(points(1:m),E_herm_loc,'LineWidth',1)
 hold on
-plot(points(1:m),E_herm_norm,'--')
+plot(points(1:m),E_herm_norm,'--','LineWidth',1)
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Hermite)")
@@ -192,14 +193,14 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
         t = ts(i);
         I_lag = Interpolate_Gr(Ias, Data,t, 'normal_lag');
         I_herm = Interpolate_Gr(Ias, Data,t, 'normal_herm',deriv_data);
-        feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
-        feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
+        % feas_l(i) = norm(I_lag'*I_lag - eye(8),'fro');
+        %feas_h(i) = norm(I_herm'*I_herm - eye(8),'fro');
         P = true_data{i}*true_data{i}';
         NP = norm(P,"fro");
         
         E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
         E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
-    %figure
-    %plot(feas_l)
+    % figure
+    % plot(feas_h)
 end

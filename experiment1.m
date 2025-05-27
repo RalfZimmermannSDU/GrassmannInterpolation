@@ -89,10 +89,10 @@ f = figure;
 f.Position = [40,800,1200*5/6,650*5/6*2];
 
 subplot(2,2,1)
-plot(ts,e1s,'-')
+plot(ts,e1s,'-','LineWidth',1)
 hold on
-plot(ts,e2s,'--')
-plot(ts,e3s,'-.')
+plot(ts,e2s,'--','LineWidth',1)
+plot(ts,e3s,'-.','LineWidth',1)
 legend("MV coords","Local coords","Normal coords")
 title("Error (Lagrange)")
 
@@ -100,10 +100,10 @@ xlabel("t")
 ylabel("Rel. error")
 
 subplot(2,2,3)
-semilogy(ts,fe1s,'-')
+semilogy(ts,fe1s,'-','LineWidth',1)
 hold on
-semilogy(ts,fe2s,'--')
-semilogy(ts,fe3s,'-.')
+semilogy(ts,fe2s,'--','LineWidth',1)
+semilogy(ts,fe3s,'-.','LineWidth',1)
 xlabel("t")
 ylabel("Feasibility")
 legend("MV coords","Local coords","Normal coords")
@@ -145,11 +145,11 @@ end
 
 
 subplot(2,2,2)
-plot(ts,e1s,'-')
+plot(ts,e1s,'-','LineWidth',1)
 hold on
-plot(ts,e2s,'--')
+plot(ts,e2s,'--','LineWidth',1)
 hold on
-plot(ts,e3s,'-.')
+plot(ts,e3s,'-.','LineWidth',1)
 xlabel("t")
 ylabel("Rel. error")
 
@@ -157,10 +157,10 @@ legend("MV coords","Local coords","Normal coords")
 title("Error (Hermite)")
 
 subplot(2,2,4)
-semilogy(ts,fe1s,'-')
+semilogy(ts,fe1s,'-','LineWidth',1)
 hold on
-semilogy(ts,fe2s,'--')
-semilogy(ts,fe3s,'-.')
+semilogy(ts,fe2s,'--','LineWidth',1)
+semilogy(ts,fe3s,'-.','LineWidth',1)
 legend("MV coords","Local coords","Normal coords")
 title("Feasibility (Hermite)")
 xlabel("t")
