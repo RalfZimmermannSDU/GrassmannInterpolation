@@ -8,6 +8,7 @@ M = matrix_tools();
 
 U = M.RandG(n,p);
 Delta = M.vectorG(U);
+
 Delta = Delta/(norm(Delta,'fro')*0.5);
 
 B = M.LocalCoordG(U,n,p);
@@ -16,7 +17,7 @@ man = [];
 eucl = [];
 loc_eucl = [];
 for i = 1:100
-    t = (i)/100 * 50 * 1/2;
+    t = (i)/100 * pi/2 ;
     man(i) = t;
     V = M.ExpG(U,Delta,t);
     Btilde = M.LocalCoordG(V,n,p);

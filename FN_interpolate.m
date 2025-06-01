@@ -137,7 +137,7 @@ xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Lagrange)")
 legend("MV coords","Normal coords")
-
+%legend("coords w/o MV","Normal coords")
 
 
 subplot(1,2,2)
@@ -148,6 +148,8 @@ xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Hermite)")
 legend("MV coords","Normal coords")
+%legend("coords w/o MV","Normal coords")
+
 fontsize(f,18,"pixels")
 sgtitle("Relative interpolation errors")
 
