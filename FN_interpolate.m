@@ -55,7 +55,7 @@ for j = 1:((t1_glob - t0_glob)/h)
             %u_dot_data_hor{k} = u_dot_data{k};
 
             % Check if the horizontal lifts are indeed horizontal
-            norm(u_data{1}'*u_dot_data_hor{1},'fro')
+            %norm(u_data{1}'*u_dot_data_hor{1},'fro')
             k = k + 1;
 
         end
@@ -136,8 +136,8 @@ plot(points(1:m),E_lag_norm,'--','LineWidth',1)
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Lagrange)")
-legend("MV coords","Normal coords")
-%legend("coords w/o MV","Normal coords")
+%legend("MV coords","Normal coords")
+legend("coords w/o MV","Normal coords")
 
 
 subplot(1,2,2)
@@ -147,13 +147,13 @@ plot(points(1:m),E_herm_norm,'--','LineWidth',1)
 xlabel("I_a")
 ylabel("Rel. error")
 title("Error (Hermite)")
-legend("MV coords","Normal coords")
-%legend("coords w/o MV","Normal coords")
+%legend("MV coords","Normal coords")
+legend("coords w/o MV","Normal coords")
 
 fontsize(f,18,"pixels")
 sgtitle("Relative interpolation errors")
 
-exportgraphics(f,"experiment_2.png","Resolution",300);
+exportgraphics(f,"experiment_2.png","Resolution",600);
 
 end
 

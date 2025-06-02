@@ -168,7 +168,7 @@ ylabel("Feasibility")
 sgtitle("Relative interpolation errors and feasibilities")
 
 fontsize(f,18,"pixels")
-exportgraphics(f,"experiment_1.png","Resolution",300);
+exportgraphics(f,"experiment_1.png","Resolution",600);
 
 
 % Table of norms of inverted upper p x p blocks before and after maxvol

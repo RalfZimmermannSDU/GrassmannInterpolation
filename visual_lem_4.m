@@ -42,10 +42,10 @@ title("Manifold dist vs. local coord dist.")
 subplot(1,2,2)
 semilogy(seucl,loc_eucl(I),'LineWidth',2);
 grid on
-xlabel("Euclidean disrance")
+xlabel("Euclidean distance")
 ylabel("Distance between local coords")
 title("Euclidean dist vs. local coord dist.")
 
 fontsize(f,18,"pixels")
 
-exportgraphics(f,"lemma_4.png","Resolution",300);
+exportgraphics(f,"lemma_4.png","Resolution",600);

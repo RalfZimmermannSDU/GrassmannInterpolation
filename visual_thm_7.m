@@ -104,7 +104,7 @@ legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
 
 
-exportgraphics(fig,"theorem_7.png","Resolution",300);
+exportgraphics(fig,"theorem_7.png","Resolution",600);
 
 
 
