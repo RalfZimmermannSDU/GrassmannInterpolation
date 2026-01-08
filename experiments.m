@@ -12,7 +12,7 @@ clear
 close all
 
 % Flags
-snapshots_FN = 0;
+snapshots_FN = 1;
 
 % Experiments to run
 run_exp_1 = 0;
@@ -25,7 +25,7 @@ p = 10;
 t0 = 0; t1 = 1;
 m = 200;
 LoR = "R";
-maxsteps = 3;
+maxsteps = 35;
 if run_exp_1
     experiment1(n,p,t0,t1,m,LoR,maxsteps);
 end
