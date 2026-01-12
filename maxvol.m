@@ -9,7 +9,7 @@ function [U,P] = maxvol(U,maxsteps)
     E2 = E;
     warning('off','MATLAB:nearlySingularMatrix')
     for k = 1:maxsteps
-        B = U / Usquare;
+        B = U / Usquare; % O(np^2 + p^3)
         [b,I] = max(abs(B),[],'all');
         if B(I)<0
             b = -b;
@@ -18,7 +18,7 @@ function [U,P] = maxvol(U,maxsteps)
         if abs(b) > 1
             [i,j] = find(~(B-ones(n,p)*b));
             %disp("(i,j) = " + num2str(i) + ", " +num2str(j))
-            U = U + (E(:,j) - E(:,i))*(U(i,:)-U(j,:));
+            U = U + (E(:,j) - E(:,i))*(U(i,:)-U(j,:)); % O(np)
             
             Ei = E2(i,:);
             Ej = E2(j,:);

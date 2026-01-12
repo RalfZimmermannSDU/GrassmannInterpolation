@@ -153,7 +153,7 @@ legend("coords w/o MV","Normal coords")
 fontsize(f,18,"pixels")
 sgtitle("Relative interpolation errors")
 
-exportgraphics(f,"experiment_2.png","Resolution",600);
+%exportgraphics(f,"experiment_2.png","Resolution",600);
 
 end
 
@@ -203,6 +203,7 @@ function [E_lag,E_herm] = error_on_interval(Data,deriv_data,true_data,t0,t1,h)
         E_lag(i) = norm(P - I_lag*I_lag','fro')/NP;
         E_herm(i) = norm(P - I_herm*I_herm','fro')/NP;
     end
-    % figure
-    % plot(feas_h)
+    %figure
+    %plot(feas_h)
+    
 end

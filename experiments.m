@@ -48,7 +48,8 @@ num_time_pts = 10e5; % number of total time steps.
 % The snapshot data is also used to compute interpolation errors, to it
 % makes sense to compute at least some for testing.
 if snapshots_FN
-    FN_create_snapshots(p,points,num_time_pts)
+    points = t0:h:t1;
+    FN_create_snapshots(points,num_time_pts)
 end
 
 p = 8; % has to be <= p_snap.

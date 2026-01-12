@@ -2,10 +2,8 @@
 % in interpolation.
 
 % Manifolds
-%
-%   Stiefel S
-%   Grassmann G
-%   Symplectic Stiefel Sp
+%   Stiefel
+%   Grassmann
 %
 %
 function MatTools = matrix_tools()
@@ -227,29 +225,28 @@ MatTools.dParamG = @dParametrizationGrassmann;
 
 %MatTools.dSVD = @dSVD;
 % Differentiate the truncated singular value decomposition
-MatTools.dSVD = @dSVD;
-function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
-    [U,S,V] = svd(Y);
-    Ur = U(:,1:r);
+MatTools.dSVD = @dSVD2;
+function [Udot, Sdot, Vdot] = dSVDold(Y,r,dY)
+    [U,S,V] = svd(Y,'econ');
+    Ur = U(:,1:r); %U = Ur;
     S = diag(S);
-    Sr = S(1:r);
-    Vr = V(:,1:r);
+    Sr = S(1:r); S = Sr;
+    Vr = V(:,1:r); %V = Vr;
     % Y = U * S * V', dY = Direction
     %
     % r is the number number determining the approximation Yr = UrSrVr'
 
     [n,~] = size(Ur);
     [m,r] = size(Vr);
-    
+
     Sdot = zeros(r);
     for j = 1:r
         Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
     end
-    
     % Since Y most often will have low rank, one can make this 
     % computation more efficient. 
     Gamma = zeros(m,r);
-    for i = 1:m
+    for i = 1:r
         w1 = U(:,i)'* dY ;
         w2 = dY * V(:,i);
         
@@ -266,27 +263,161 @@ function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
         end
     end
     Gammar = Gamma(1:r,1:r);
+    Gammar = 0.5 * (Gammar - Gammar');
 
-    Vdot = V * Gamma;
+    %Vdot = V * Gamma;
     
     Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot)) / diag(Sr);
 
 end
+function [Udot, Sdot, Vdot] = dSVD(Y,r,dY)
+%function [Udot, Sdot, Vdot] = dSVD(U,S,V,r,dY)
+    [U,S,V] = svd(Y,'econ');
+    
+    Ur = U(:,1:r); %U = Ur;
+    Sr = diag(S);
+    Sr = Sr(1:r); S = Sr;
+    Vr = V(:,1:r); %V = Vr;
 
-MatTools.dQR = @dQR;
-function [dQ,dR] = dQR(Y,dY)
-    [n,p] = size(Y);
+    % Y = U * S * V', dY = Direction
+    %
+    % r is the number number determining the approximation Yr = UrSrVr'
+
+    [n,~] = size(Ur);
+    [m,~] = size(Vr);
+
+    Sdot = zeros(r);
+    for j = 1:r
+        Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
+    end
+    % Since Y most often will have low rank, one can make this 
+    % computation more efficient. 
+    Gamma = zeros(m,r);
     
-    [Q,R] = qr(Y,'econ');
+    % The upper p x p block
+    for i = 1:r
+        w1 = Ur(:,i)'* dY ;
+        w2 = dY * Vr(:,i);
+
+        for j = 1:r
+            if i ~= j
+                if abs(S(i) - S(j)) < 10-10
+                    error("The singular values for (i,j) = ("+num2str(Sr(i))+","+num2str(Sr(j))+") are too close")
+                end
+                Gamma(i,j) = Sr(i) * (Ur(:,i)'* dY * Vr(:,j)) + Sr(j) * (Ur(:,j)' * dY * Vr(:,i));
+
+                Gamma(i,j) = Gamma(i,j) / ( (Sr(j) + Sr(i)) * (Sr(j) - Sr(i)) ) ;
+
+            end
+
+        end
+    end
+
+    Gammar = Gamma(1:r,1:r);
+    Gammar = 0.5 * (Gammar - Gammar');
+
+    %Vdot = V * Gamma;
+    Vdot = 0;
     
-    PL = tril(ones(p,p),-1);
-    L = PL.*(Q'*dY / R);
-    X = L - L';
-    
-    dR = Q'*dY - X*R;
-    dQ = (eye(n) - Q*Q') * dY / R + Q*X;
+    Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot) ) / diag(Sr);
 
 end
+
+function [dU,dS,dV] = dSVD2(U,S,V,dY)
+    % Y = U*S*V'
+    [r,~] = size(S);
+    [m,~] = size(V);
+    S = diag(S);
+    dS = zeros(r,1); 
+    for i = 1:r
+        dS(i) = U(:,i)' * dY * V(:,i);
+    end
+    dS = diag(dS);
+    Gamma = zeros(m,r);
+    for i = 1:m
+        
+        for j = 1:r
+            if i ~= j
+                if abs(S(i)-S(j))<10e-10
+                    error("The singular values are too close.")
+                end
+                Gamma(i,j) = S(i)*U(:,i)'*dY*V(:,j) + S(j)*U(:,j)'*dY*V(:,i);
+                Gamma(i,j) = Gamma(i,j) / ((S(j) + S(i))*(S(j)-S(i)));
+            end
+        end
+    end
+    S = diag(S);
+    dV = V * Gamma;
+    dU = (dY * V + U * (S*Gamma(1:r,1:r) - dS)) / S;
+    checkComp = 0;
+    if checkComp
+        % Check that the computation is correct
+        dYsvd = dU * S * V' + U * dS * V' + U * S * dV';
+        diff = norm(dY - dYsvd) / norm(dY)
+    end
+    
+end
+
+% MatTools.dSVD2 = @dSVD2;
+% function [Udot, Sdot, Vdot] = dSVD2(Ur,Sr,Vr,r,dY)
+%     % [U,S,V] = svd(Y,'econ');
+%     % Ur = U(:,1:r);
+%     % S = diag(S);
+%     % Sr = S(1:r);
+%     % Vr = V(:,1:r);
+%     % Yr = Ur * Sr * Vr', dY = Direction
+%     %
+%     % r is the number number determining the approximation Yr = UrSrVr'
+% 
+%     [n,~] = size(Ur);
+%     [m,r] = size(Vr);
+% 
+%     Sdot = zeros(r);
+%     for j = 1:r
+%         Sdot(j,j) = Ur(:,j)' * dY * Vr(:,j);
+%     end
+%     % Since Y most often will have low rank, one can make this 
+%     % computation more efficient. 
+%     Gamma = zeros(m,r);
+%     for i = 1:m
+%         w1 = U(:,i)'* dY ;
+%         w2 = dY * V(:,i);
+% 
+%         for j = 1:r
+%             if i ~= j
+%                 if abs(S(i) - S(j)) < 10-10
+%                     error("The singular values for (i,j) = ("+num2str(Sr(i))+","+num2str(Sr(j))+") are too close")
+%                 end
+%                 Gamma(i,j) = S(i) * w1 * V(:,j) + S(j) * U(:,j)' * w2;
+% 
+%                 Gamma(i,j) = Gamma(i,j) / ( (S(j) + S(i)) * (S(j) - S(i)) ) ;
+%             end
+% 
+%         end
+%     end
+%     Gammar = Gamma(1:r,1:r);
+%     Gammar = 0.5 * (Gammar - Gammar');
+% 
+%     Vdot = V * Gamma;
+% 
+%     Udot = (dY * Vr + Ur * (diag(Sr) * Gammar - Sdot)) / diag(Sr);
+% 
+% end
+% 
+% MatTools.dQR = @dQR;
+% function [dQ,dR] = dQR(Y,dY)
+%     [n,p] = size(Y);
+% 
+%     [Q,R] = qr(Y,'econ');
+% 
+%     PL = tril(ones(p,p),-1);
+%     L = PL.*(Q'*dY / R);
+%     X = L - L';
+% 
+%     dR = Q'*dY - X*R;
+%     dQ = (eye(n) - Q*Q') * dY / R + Q*X;
+% 
+% end
 
 MatTools.LC_distbound = @lcdistbound;
 function cb = lcdistbound(U,V)
