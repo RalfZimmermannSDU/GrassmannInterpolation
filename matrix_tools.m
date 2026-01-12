@@ -335,25 +335,33 @@ function [dU,dS,dV] = dSVD2(U,S,V,dY)
     dS = diag(dS);
     Gamma = zeros(m,r);
     for i = 1:m
-        
-        for j = 1:r
-            if i ~= j
-                if abs(S(i)-S(j))<10e-10
-                    error("The singular values are too close.")
+            for j = 1:r
+                if (i ~= j) && (i <= r)
+                    if abs(S(i)-S(j))<10e-10
+                        error("The singular values are too close.")
+                    end
+                    Gamma(i,j) = S(i)*U(:,i)'*dY*V(:,j) + S(j)*U(:,j)'*dY*V(:,i);
+                    Gamma(i,j) = Gamma(i,j) / ((S(j) + S(i))*(S(j)-S(i)));
+                elseif i > r
+                    Gamma(i,j) = U(:,j)'*dY*V(:,i) / S(j);
                 end
-                Gamma(i,j) = S(i)*U(:,i)'*dY*V(:,j) + S(j)*U(:,j)'*dY*V(:,i);
-                Gamma(i,j) = Gamma(i,j) / ((S(j) + S(i))*(S(j)-S(i)));
             end
-        end
+        
     end
     S = diag(S);
     dV = V * Gamma;
-    dU = (dY * V + U * (S*Gamma(1:r,1:r) - dS)) / S;
-    checkComp = 0;
+    dU = (dY * V(:,1:r) + U(:,1:r) * (S*Gamma(1:r,1:r) - dS)) / S;
+    checkComp = 1;
     if checkComp
         % Check that the computation is correct
-        dYsvd = dU * S * V' + U * dS * V' + U * S * dV';
-        diff = norm(dY - dYsvd) / norm(dY)
+        dYsvd = dU * S * V(:,1:r)' + U(:,1:r) * dS * V(:,1:r)' + U(:,1:r) * S * dV';
+        diff = norm(dY - dYsvd) / norm(dY);
+        if diff < 10e-4
+            fprintf("dSVD worked; difference %.2e \n",diff);
+        else
+            fprintf("dSVD did NOT work; difference %.2e \n",diff);
+        end
+
     end
     
 end

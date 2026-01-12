@@ -12,11 +12,11 @@ clear
 close all
 
 % Flags
-snapshots_FN = 1;
+snapshots_FN = 0;
 
 % Experiments to run
 run_exp_1 = 0;
-run_exp_2 = 1;
+run_exp_2 = 0;
 
 
 %% Experiment 1: Q factor experiment
@@ -63,3 +63,41 @@ if run_exp_2
     FN_interpolate(p,Data,Data_ref,points,m2,t0,t1,h,h2,maxsteps)
 end
 
+%%
+clear all
+close all
+M = matrix_tools();
+Data = load("snapshots_FN_model/snapshot_N_6.mat")
+Data_ref = load("snapshots_FN_model/snapshot_N_91.mat")
+Data_ref = Data_ref.data_u(1:51);
+mh = 10;
+Udata = cell(1,6);
+dUdata = cell(1,6);
+
+nx = 1024;
+% Prepare data
+psel = 8;
+for i = 1:6
+    [U,S,V] = svd(Data.Data{i}(1:nx,:),'econ');
+    [k,~] = size(S);
+    S = diag(S);
+    tol = 10e-5;
+    p = sum(S>tol);
+    fprintf("Need to truncate to %2d first columns\n",p)
+    S = diag(S(1:p));
+    dU = M.dSVD(U(:,1:p),S,V,Data.Data_dot{i}(1:nx,:));
+    
+    U = U(:,1:psel);
+    dU = dU(:,1:psel);
+
+    dU = (dU*U'+U*dU')*U;
+    Udata{i} = U;
+    dUdata{i} = dU;
+end
+
+%%
+Data_ref = load("snapshots_FN_model/snapshot_N_501.mat")
+Data_ref = Data_ref.data_u(1:501);
+mh = 100;
+maxsteps = 30;
+FN_interpolate_update(Udata, dUdata, Data_ref, 0.03:0.01:0.08, mh, psel, maxsteps);
