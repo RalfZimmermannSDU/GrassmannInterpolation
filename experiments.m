@@ -15,7 +15,7 @@ close all
 snapshots_FN = 1;
 
 % Experiments to run
-run_exp_1 = 0;
+run_exp_1 = 1;
 run_exp_2 = 0;
 
 

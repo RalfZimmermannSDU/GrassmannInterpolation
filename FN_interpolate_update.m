@@ -72,7 +72,8 @@ for i = 1:(l-1)
         PU = Ps{s}*Data{ss(2)};
         conds(i,(s-1)*2+2) = cond(PU(1:p,1:p),'fro');
     end
-    P{i} = Ps{1};
+    %P{i} = Ps{1};
+    P{i} = Ps{2};
 end
 
 

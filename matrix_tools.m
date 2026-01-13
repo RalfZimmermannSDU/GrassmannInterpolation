@@ -412,20 +412,20 @@ end
 % 
 % end
 % 
-% MatTools.dQR = @dQR;
-% function [dQ,dR] = dQR(Y,dY)
-%     [n,p] = size(Y);
-% 
-%     [Q,R] = qr(Y,'econ');
-% 
-%     PL = tril(ones(p,p),-1);
-%     L = PL.*(Q'*dY / R);
-%     X = L - L';
-% 
-%     dR = Q'*dY - X*R;
-%     dQ = (eye(n) - Q*Q') * dY / R + Q*X;
-% 
-% end
+MatTools.dQR = @dQR;
+function [dQ,dR] = dQR(Y,dY)
+    [n,p] = size(Y);
+
+    [Q,R] = qr(Y,'econ');
+
+    PL = tril(ones(p,p),-1);
+    L = PL.*(Q'*dY / R);
+    X = L - L';
+
+    dR = Q'*dY - X*R;
+    dQ = (eye(n) - Q*Q') * dY / R + Q*X;
+
+end
 
 MatTools.LC_distbound = @lcdistbound;
 function cb = lcdistbound(U,V)
@@ -448,6 +448,93 @@ function cb = conditionnumber_phi_bound(B)
 end
 
 
+
+%% Aux. matrix tools
+MatTools.house_qr = @house_qr;
+function [U, R, Q] = house_qr(X)
+% Stewart, Mat Decomp 1, p. 259
+%
+%
+[n,k] = size(X);
+
+% store Householder vectors
+U = zeros(n,k);
+R = zeros(k,k);
+Q = eye(n);
+for j=1:k
+    % cancel column j
+    [U(j:n,j), R(j,j)] = housegen(X(j:n,j));
+    vT                 = U(j:n,j)'*X(j:n, j+1:k);
+    X(j:n,j+1:k)       = X(j:n,j+1:k) - U(j:n,j)*vT;
+    R(j,j+1:k)         = X(j,j+1:k);
+    %
+    % tmp
+    %Q = Q*(eye(n) - U(:,j)*U(:,j)');
+end
+end
+
+MatTools.housegen = @housegen;
+function [u,nu] = housegen(x)
+% From Stewart: Mat Decomp1, p. 257
+%This algorithm takes a vector x and produces a vector u 
+% that generates a Householder transformation H = I - uu^T 
+% such that Hx = = +/-||x'|| ei. The quantity +/- ||x|| is
+%returned in v
+%
+%
+u = x;
+nu= norm(u, 2);
+if nu == 0
+    u(l) = sqrt(0.5);
+    return;
+end
+
+u = x/nu;
+if (u(1)>0)
+    u(1) = u(1) + 1;
+    nu = -nu;
+else
+    u(1) = u(1)-1;
+end
+
+u = u/(sqrt(abs(u(1))));
+
+end
+
+MatTools.house_block = @house_block;
+function [W,Y] = house_block(U)
+% low rank representation of Q-factor of QR  
+% from Householder approach
+%
+% implementation follows Golub/Van Loan/3rd edition,
+% Algorithm 5.1.2, p. 214
+%
+
+[n,k] = size(U);
+
+W = zeros(n,k);
+Y = zeros(n,k);
+
+W(:,1) = -U(:,1);
+Y(:,1) =  U(:,1);
+for j=2:k
+    % compute z = -Q*U(:,j) = -(I+WY')*U(:,j)
+    z      = -(U(:,j)+W(:,1:j-1)*(Y(:,1:j-1)'*U(:,j)));
+    W(:,j) = z;
+    Y(:,j) = U(:,j);
+end
+
+end
+
+MatTools.applyWYT = @appplyWYT;
+function PU = appplyWYT(U,W,Y)
+    PU = U + Y*(W'*U);
+end
+
+MatTools.applyWY = @appplyWY;
+function PU = appplyWY(U,W,Y)
+    PU = U + W*(Y'*U);
+end
 
 
 

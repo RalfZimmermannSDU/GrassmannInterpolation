@@ -33,17 +33,32 @@ dDatahor{2} = (dData{2}*Data{2}'+Data{2}*dData{2}')*Data{2};
 
 % Apply maxvol method
 if LoR == "L"
-    [~,P] = maxvol(Data{1},maxsteps);
-    Data_P{1} = P*Data{1};
-    Data_P{2} = P*Data{2};
-    dData_P{1} = P*dData{1};
-    dData_P{2} = P*dData{2};
+    % [~,P] = maxvol(Data{1},maxsteps);
+    % Data_P{1} = P*Data{1};
+    % Data_P{2} = P*Data{2};
+    % dData_P{1} = P*dData{1};
+    % dData_P{2} = P*dData{2};
+
+    [UQ,R,Q] = M.house_qr(Data{1});
+    [W,Y] = M.house_block(UQ);
+    
+    Data_P{1} = M.applyWYT(Data{1},W,Y);
+    Data_P{2} = M.applyWYT(Data{2},W,Y);
+    dData_P{1} = M.applyWYT(dData{1},W,Y)
+    dData_P{2} = M.applyWYT(dData{2},W,Y)
 else
-    [~,P] = maxvol(Data{2},maxsteps);
-    Data_P{1} = P*Data{1};
-    Data_P{2} = P*Data{2};
-    dData_P{1} = P*dData{1};
-    dData_P{2} = P*dData{2};
+    %[~,P] = maxvol(Data{2},maxsteps);
+    % Data_P{1} = P*Data{1};
+    % Data_P{2} = P*Data{2};
+    % dData_P{1} = P*dData{1};
+    % dData_P{2} = P*dData{2};
+    [UQ,R,Q] = M.house_qr(Data{1});
+    [W,Y] = M.house_block(UQ);
+    
+    Data_P{1} = M.applyWYT(Data{1},W,Y);
+    Data_P{2} = M.applyWYT(Data{2},W,Y);
+    dData_P{1} = M.applyWYT(dData{1},W,Y);
+    dData_P{2} = M.applyWYT(dData{2},W,Y);
 end
 
 p_c1 = norm(eye(p)/Data_P{1}(1:p,1:p) , 'fro');
@@ -62,7 +77,8 @@ fe3s = [];
 for i = 1:m+1
     t = (i-1)/m*t1+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
-    Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % MV coords
+    %Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_lag'); % MV coords
+    Q1 = M.applyWY(Interpolate_Gr([t0 t1],Data_P,t,'local_lag'),W,Y); % MV coords
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_lag'); % Standard local coords
     Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_lag'); % Normal
     
@@ -123,7 +139,8 @@ fe3s = [];
 for i = 1:(m+1)
     t = (i-1)/m*t1+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
-    Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % MV coords
+    %Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % MV coords
+    Q1 = M.applyWY(Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P),W,Y);
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_herm',dData); % standard local coords
     Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_herm',dDatahor); % Normal 
     
