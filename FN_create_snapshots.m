@@ -10,6 +10,7 @@ function FN_create_snapshots(points,num_time_pts)
     
     
     Data = cell(1,n);
+    Data_ph = cell(1,n);
     Data_dot = cell(1,n);
     
     data_u = cell(1,n);
@@ -33,7 +34,7 @@ function FN_create_snapshots(points,num_time_pts)
         %Yph = Yph / norm(Yph);
         Data_dot{i} = (Yph - Ymh) / (2*h);
         % 
-
+        Data_ph{i} = Yph;
         % % Compute u,v,u_dot and v_dot
         %[Up,Sp,~] = svd(Y(1:nx,1:nt),'econ');
         %[Vp,~,~] = svd(Y(nx+1:end,1:nt));
@@ -54,5 +55,5 @@ function FN_create_snapshots(points,num_time_pts)
     % csvwrite('dd2.csv',Data_dot{2})
 
     %eval(['save snapshots_FN_model/snapshot_N_', num2str(n),'.mat Data Data_dot data_u data_v data_u_dot data_v_dot',' -v7.3']);   
-    eval(['save snapshots_FN_model/snapshot_N_', num2str(n),'.mat Data Data_dot',' -v7.3']);   
+    eval(['save snapshots_FN_model/snapshot_N_', num2str(n),'.mat Data Data_ph Data_dot',' -v7.3']);   
 end

@@ -12,7 +12,7 @@ clear
 close all
 
 % Flags
-snapshots_FN = 0;
+snapshots_FN = 1;
 
 % Experiments to run
 run_exp_1 = 0;
@@ -51,7 +51,7 @@ if snapshots_FN
     points = t0:h:t1;
     FN_create_snapshots(points,num_time_pts)
 end
-
+%%
 p = 8; % has to be <= p_snap.
 
 % Load data
@@ -81,11 +81,11 @@ for i = 1:6
     [U,S,V] = svd(Data.Data{i}(1:nx,:),'econ');
     [k,~] = size(S);
     S = diag(S);
-    tol = 10e-5;
+    tol = 10e-8;
     p = sum(S>tol);
     fprintf("Need to truncate to %2d first columns\n",p)
     S = diag(S(1:p));
-    dU = M.dSVD(U(:,1:p),S,V,Data.Data_dot{i}(1:nx,:));
+    [dU,~, ~] = M.dSVD(U(:,1:p),S,V,Data.Data_dot{i}(1:nx,:));
     
     U = U(:,1:psel);
     dU = dU(:,1:psel);
@@ -93,6 +93,19 @@ for i = 1:6
     dU = (dU*U'+U*dU')*U;
     Udata{i} = U;
     dUdata{i} = dU;
+end
+%%
+for i = 1:6
+    [U,S,V] = svd(Data.Data{i}(1:nx,:),'econ');
+    [Uh,Sh,Vh] = svd(Data.Data_ph{i}(1:nx,:),'econ');
+
+    h = 0.0000001;
+    U = U(:,1:psel);
+    Uh = Uh(:,1:psel);
+    dUFD = (Uh - U) / h;
+    dUFD = (dUFD*U'+U*dUFD')*U;
+    norm(dUFD - dUdata{i},'fro') 
+    %dUdata{i} = dUFD;
 end
 
 %%
