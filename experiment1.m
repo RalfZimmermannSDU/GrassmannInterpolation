@@ -1,5 +1,5 @@
 %% Experiment 1: Q factor experiment
-function experiment1(n,p,t0,t1,m,LoR,maxsteps)
+function [ts, e1s, e2s, e3s, e11s, e22s, e33s] = experiment1(n,p,t0,t1,m,LoR,maxsteps)
 % n,p      = dimensions of the Grassmann manifold
 % t0,t1,m  = time interval and number of points 
 % LoR      = apply maxvol on the left- or rightmost endpoint
@@ -128,9 +128,9 @@ title("Feasibility (Lagrange)")
 
 % Hermite interpolation
 
-e1s = [];
-e2s = [];
-e3s = [];
+e11s = [];
+e22s = [];
+e33s = [];
 
 fe1s = [];
 fe2s = [];
@@ -140,7 +140,7 @@ for i = 1:(m+1)
     t = (i-1)/m*t1+t0;
     U = curve2(t,Y0,Y1,Y2,Y3);
     %Q1 = P'*Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P); % MV coords
-    Q1 = M.applyWY(Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P),W,Y);
+    Q1 = M.applyWY(Interpolate_Gr([t0 t1],Data_P,t,'local_herm',dData_P),W,Y); % MV coords
     Q2 = Interpolate_Gr([t0 t1],Data,t,'local_herm',dData); % standard local coords
     Q3 = Interpolate_Gr([t0 t1],Data,t,'normal_herm',dDatahor); % Normal 
     
@@ -149,9 +149,9 @@ for i = 1:(m+1)
     e2 = norm(Q2*Q2'-U*U','fro')/NU; % standard local coords
     e3 = norm(Q3*Q3'-U*U','fro')/NU; % Normal 
 
-    e1s(i) = e1;
-    e2s(i) = e2;
-    e3s(i) = e3;
+    e11s(i) = e1;
+    e22s(i) = e2;
+    e33s(i) = e3;
 
 
     fe1s(i) = norm(Q1'*Q1 - eye(p),'fro'); % MV coords
@@ -162,11 +162,11 @@ end
 
 
 subplot(2,2,2)
-plot(ts,e1s,'-','LineWidth',1)
+plot(ts,e11s,'-','LineWidth',1)
 hold on
-plot(ts,e2s,'--','LineWidth',1)
+plot(ts,e22s,'--','LineWidth',1)
 hold on
-plot(ts,e3s,'-.','LineWidth',1)
+plot(ts,e33s,'-.','LineWidth',1)
 xlabel("t")
 ylabel("Rel. error")
 

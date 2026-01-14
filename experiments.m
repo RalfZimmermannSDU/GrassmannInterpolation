@@ -27,9 +27,39 @@ m = 200;
 LoR = "R";
 maxsteps = 35;
 if run_exp_1
-    experiment1(n,p,t0,t1,m,LoR,maxsteps);
+    [ts, e1s, e2s, e3s, e11s, e22s, e33s] = experiment1(n,p,t0,t1,m,LoR,maxsteps);
 end
 
+%% Figure
+f = figure;
+f.Position = [40,800,1200*6/5,650*5/5];
+set(f, 'DefaultTextInterpreter', 'latex')
+lw = 3;
+subplot(1,2,1)
+plot(ts,e1s,'-','LineWidth',lw)
+hold on
+plot(ts,e2s,'--','LineWidth',lw)
+plot(ts,e3s,'-.','LineWidth',lw)
+legend("MV coords","Local coords","Normal coords",'Interpreter','latex')
+title("Error (Lagrange)",'Interpreter','latex')
+
+xlabel("t",'Interpreter','latex')
+ylabel("Rel. error",'Interpreter','latex')
+
+subplot(1,2,2)
+plot(ts,e11s,'-','LineWidth',lw)
+hold on
+plot(ts,e22s,'--','LineWidth',lw)
+hold on
+plot(ts,e33s,'-.','LineWidth',lw)
+xlabel("t",'Interpreter','latex')
+ylabel("Rel. error",'Interpreter','latex')
+
+legend("MV coords","Local coords","Normal coords",'Interpreter','latex')
+title("Error (Hermite)",'Interpreter','latex')
+fontsize(18,"points")
+%%
+exportgraphics(f,"fig_4.png","Resolution",600)
 
 %% Experiment 2: FN system
 

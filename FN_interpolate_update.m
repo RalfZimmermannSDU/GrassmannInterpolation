@@ -61,6 +61,8 @@ end
 % chooses the P obtained at entry s = 1 or s = 2. Choose s = 1.
 conds = zeros(l,4);
 P = cell(1,l-1);
+W = cell(1,l-1);
+Y = cell(1,l-1);
 for i = 1:(l-1)
     ss = i:(i+1);
     Ps = cell(1,2);
@@ -73,7 +75,10 @@ for i = 1:(l-1)
         conds(i,(s-1)*2+2) = cond(PU(1:p,1:p),'fro');
     end
     %P{i} = Ps{1};
-    P{i} = Ps{2};
+    %P{i} = Ps{2};
+    [UQ,R,Q] = M.house_qr(Data{ss(2)});
+    [W{i},Y{i}] = M.house_block(UQ);
+
 end
 
 
@@ -84,14 +89,17 @@ for i = 1:(l-1)
 
     % Apply P
     for s = 1:2
-        Ds{s} = P{i}*Ds{s};
-        dDs{s} = P{i}*dDs{s};
+        %Ds{s} = P{i}*Ds{s};
+        %dDs{s} = P{i}*dDs{s};
+        Ds{s} = M.applyWYT(Ds{s},W{i},Y{i});
+        dDs{s} = M.applyWYT(dDs{s},W{i},Y{i});
     end
     Dref = Data_ref((i-1)*m_h + 1:m_h*i+1);
     for j = 1:m_h+1
         Ptrue = Dref{j}(:,1:p)*Dref{j}(:,1:p)';
         Uint = Interpolate_Gr([points(i) points(i+1)],Ds,ts(j),'local_lag');
-        Uint = P{i}'*Uint;
+        % Uint = P{i}'*Uint;
+        Uint = M.applyWY(Uint,W{i},Y{i});
         e = norm(Uint*Uint' - Ptrue,'fro') / norm(Ptrue,'fro');
         E_lag_loc = [E_lag_loc e];
     end
@@ -107,14 +115,17 @@ for i = 1:(l-1)
     norm(Ds{s}'*dDs{s});
     % Apply P
     for s = 1:2
-        Ds{s} = P{i}*Ds{s};
-        dDs{s} = P{i}*dDs{s};
+        % Ds{s} = P{i}*Ds{s};
+        % dDs{s} = P{i}*dDs{s};
+        Ds{s} = M.applyWYT(Ds{s},W{i},Y{i});
+        dDs{s} = M.applyWYT(dDs{s},W{i},Y{i});
     end
     Dref = Data_ref((i-1)*m_h + 1:m_h*i+1);
     for j = 1:m_h+1
         Ptrue = Dref{j}(:,1:p)*Dref{j}(:,1:p)';
         Uint = Interpolate_Gr([points(i) points(i+1)],Ds,ts(j),'local_herm',dDs);
-        Uint = P{i}'*Uint;
+        %Uint = P{i}'*Uint;
+        Uint = M.applyWY(Uint,W{i},Y{i});
         e = norm(Uint*Uint' - Ptrue,'fro') / norm(Ptrue,'fro');
         E_herm_loc = [E_herm_loc e];
     end
@@ -125,11 +136,12 @@ end
 
 
 figure
-% plot(E_lag_loc)
-% hold on
-% plot(E_lag_norm)
+plot(E_lag_loc)
+hold on
+plot(E_lag_norm)
 hold on
 plot(E_herm_loc)
 plot(E_herm_norm)
+legend('Lag MV','Lag RN','Herm MV','Lag RN')
 
 end
