@@ -5,7 +5,7 @@
 %   dData: Contains the dU's, which are all horizontal.
 %   Data_ref: Contains reference U data, matching the U for each m_h entry
 %               eg. Data_ref{m_k*k + 1).U = Data{k}.U
-function FN_interpolate_update(Data, dData, Data_ref, points, m_h, p, maxsteps)
+function [E_lag_loc,E_lag_norm, E_herm_loc, E_herm_norm,ts] = FN_interpolate_update(Data, dData, Data_ref, points, m_h, p, maxsteps)
 
 M = matrix_tools();
 
@@ -135,13 +135,5 @@ for i = 1:(l-1)
 end
 
 
-figure
-plot(E_lag_loc)
-hold on
-plot(E_lag_norm)
-hold on
-plot(E_herm_loc)
-plot(E_herm_norm)
-legend('Lag MV','Lag RN','Herm MV','Lag RN')
-
+ts = linspace(points(1),points(end),(l-1)*m_h+1);
 end

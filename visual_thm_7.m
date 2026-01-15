@@ -7,13 +7,17 @@ p = 20;
 M = matrix_tools();
 
 U = M.RandG(n,p);
+[UQ,R,Q] = M.house_qr(U);
+[W,Y] = M.house_block(UQ);
+U = M.applyWYT(U,W,Y);
+
 Delta = M.vectorG(U);
 Delta = Delta/(norm(Delta,'fro')*0.5);
-[U,P] = maxvol(U);
+%[U,P] = maxvol(U);
 
 B = M.LocalCoordG(U,n,p);
 bound = sqrt(5/2)+1;
-Delta = P*Delta/(norm(Delta,'fro')*0.5);
+Delta = Delta/(norm(Delta,'fro')*0.5);
 
 norm_local = [];
 dist_man = [];
@@ -32,17 +36,20 @@ end
 
 f = @(x) asin(bound * x);
 
+%%
+
 fig = figure;
-fig.Position = [40,800,1200*5/6,650*5/6];
+set(fig, 'DefaultTextInterpreter', 'latex')
+fig.Position = [40,800,1200*6/5,650*5/5];
 subplot(1,2,1)
-plot(norm_local,dist_man(I),'*')
+plot(norm_local,dist_man(I),'*','LineWidth',3)
 hold on
-fplot(f,[0.0001,(1/bound-0.02)])
+fplot(f,[0.000,(1/bound-0.02)],'LineWidth',3)
 ylim([-0.001,1.5])
 xlabel("Distance in local coordinates")
 ylabel("Distance on manifold")
-fontsize(fig,15,"pixels")
-title("n=500, p = 10")
+%fontsize(fig,18,"pixels")
+title("n = 500, p = 10")
 grid on
 legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
@@ -53,13 +60,17 @@ p = 4;
 M = matrix_tools();
 
 U = M.RandG(n,p);
+[UQ,R,Q] = M.house_qr(U);
+[W,Y] = M.house_block(UQ);
+U = M.applyWYT(U,W,Y);
+
 Delta = M.vectorG(U);
 Delta = Delta/(norm(Delta,'fro')*0.5);
-[U,P] = maxvol(U);
+
 
 B = M.LocalCoordG(U,n,p);
 bound = sqrt(5/2)+1;
-Delta = P*Delta/(norm(Delta,'fro')*0.5);
+Delta = Delta/(norm(Delta,'fro')*0.5);
 
 %P = U*U';
 norm_local2 = [];
@@ -78,24 +89,15 @@ end
 [norm_local2,I] = sort(norm_local2,'ascend');
 
 
-
-
-
-
-
-
-
-
-
 subplot(1,2,2)
-plot(norm_local2,dist_man2(I),'*')
+plot(norm_local2,dist_man2(I),'*','LineWidth',3)
 hold on
-fplot(f,[0.001,(1/bound-0.02)])
+fplot(f,[0.00,(1/bound-0.02)],'LineWidth',3)
 ylim([-0.001,1.5])
 xlabel("Distance in local coordinates")
 ylabel("Distance on manifold")
-fontsize(fig,18,"pixels")
-title("n=10, p = 4")
+fontsize(fig,18,"points")
+title("n = 10, p = 4")
 grid on
 legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
@@ -103,7 +105,7 @@ legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
 
 
-
+%%
 exportgraphics(fig,"theorem_7.png","Resolution",600);
 
 

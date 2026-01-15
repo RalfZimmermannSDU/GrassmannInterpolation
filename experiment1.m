@@ -52,7 +52,7 @@ else
     % Data_P{2} = P*Data{2};
     % dData_P{1} = P*dData{1};
     % dData_P{2} = P*dData{2};
-    [UQ,R,Q] = M.house_qr(Data{1});
+    [UQ,R,Q] = M.house_qr(Data{2});
     [W,Y] = M.house_block(UQ);
     
     Data_P{1} = M.applyWYT(Data{1},W,Y);
@@ -98,34 +98,6 @@ for i = 1:m+1
 
 end
 
-
-ts = linspace(t0,t1,m+1);
-
-f = figure;
-f.Position = [40,800,1200*5/6,650*5/6*2];
-
-subplot(2,2,1)
-plot(ts,e1s,'-','LineWidth',1)
-hold on
-plot(ts,e2s,'--','LineWidth',1)
-plot(ts,e3s,'-.','LineWidth',1)
-legend("MV coords","Local coords","Normal coords")
-title("Error (Lagrange)")
-
-xlabel("t")
-ylabel("Rel. error")
-
-subplot(2,2,3)
-semilogy(ts,fe1s,'-','LineWidth',1)
-hold on
-semilogy(ts,fe2s,'--','LineWidth',1)
-semilogy(ts,fe3s,'-.','LineWidth',1)
-xlabel("t")
-ylabel("Feasibility")
-legend("MV coords","Local coords","Normal coords")
-title("Feasibility (Lagrange)")
-
-
 % Hermite interpolation
 
 e11s = [];
@@ -160,41 +132,15 @@ for i = 1:(m+1)
 
 end
 
+ts = linspace(t0,t1,m+1);
 
-subplot(2,2,2)
-plot(ts,e11s,'-','LineWidth',1)
-hold on
-plot(ts,e22s,'--','LineWidth',1)
-hold on
-plot(ts,e33s,'-.','LineWidth',1)
-xlabel("t")
-ylabel("Rel. error")
-
-legend("MV coords","Local coords","Normal coords")
-title("Error (Hermite)")
-
-subplot(2,2,4)
-semilogy(ts,fe1s,'-','LineWidth',1)
-hold on
-semilogy(ts,fe2s,'--','LineWidth',1)
-semilogy(ts,fe3s,'-.','LineWidth',1)
-legend("MV coords","Local coords","Normal coords")
-title("Feasibility (Hermite)")
-xlabel("t")
-ylabel("Feasibility")
-sgtitle("Relative interpolation errors and feasibilities")
-
-fontsize(f,18,"pixels")
-exportgraphics(f,"experiment_1.png","Resolution",600);
-
-
-% Table of norms of inverted upper p x p blocks before and after maxvol
-Point = [0,1]';
-Before = [c1,c2]';
-After = [p_c1,p_c2]';
-
-T = table(Point,Before,After);
-disp(T);
+% % Table of norms of inverted upper p x p blocks before and after maxvol
+% Point = [0,1]';
+% Before = [c1,c2]';
+% After = [p_c1,p_c2]';
+% 
+% T = table(Point,Before,After);
+% disp(T);
 
 end
 function [Q,dQ] = curve2(t,Y0,Y1,Y2,Y3)

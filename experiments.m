@@ -12,7 +12,7 @@ clear
 close all
 
 % Flags
-snapshots_FN = 1;
+snapshots_FN = 0;
 
 % Experiments to run
 run_exp_1 = 1;
@@ -40,7 +40,7 @@ plot(ts,e1s,'-','LineWidth',lw)
 hold on
 plot(ts,e2s,'--','LineWidth',lw)
 plot(ts,e3s,'-.','LineWidth',lw)
-legend("MV coords","Local coords","Normal coords",'Interpreter','latex')
+legend("CCCs","Local coords","Normal coords",'Interpreter','latex')
 title("Error (Lagrange)",'Interpreter','latex')
 
 xlabel("t",'Interpreter','latex')
@@ -55,11 +55,11 @@ plot(ts,e33s,'-.','LineWidth',lw)
 xlabel("t",'Interpreter','latex')
 ylabel("Rel. error",'Interpreter','latex')
 
-legend("MV coords","Local coords","Normal coords",'Interpreter','latex')
+legend("CCCs","Local coords","Normal coords",'Interpreter','latex')
 title("Error (Hermite)",'Interpreter','latex')
 fontsize(18,"points")
 %%
-exportgraphics(f,"fig_4.png","Resolution",600)
+%exportgraphics(f,"fig_4.png","Resolution",600)
 
 %% Experiment 2: FN system
 
@@ -81,21 +81,11 @@ if snapshots_FN
     points = t0:h:t1;
     FN_create_snapshots(points,num_time_pts)
 end
-%%
+
 p = 8; % has to be <= p_snap.
 
-% Load data
-Data = load("snapshots_FN_model/snapshot_N_91.mat"); % Used as interpolation data
-Data_ref = load("snapshots_FN_model/snapshot_N_501.mat"); % Used for high_res plots
-
-m2 = 51;
-if run_exp_2
-    FN_interpolate(p,Data,Data_ref,points,m2,t0,t1,h,h2,maxsteps)
-end
-
 %%
-clear all
-close all
+
 M = matrix_tools();
 Data = load("snapshots_FN_model/snapshot_N_6.mat")
 Data_ref = load("snapshots_FN_model/snapshot_N_91.mat")
@@ -124,7 +114,7 @@ for i = 1:6
     Udata{i} = U;
     dUdata{i} = dU;
 end
-%%
+%% Check the derivatives
 for i = 1:6
     [U,S,V] = svd(Data.Data{i}(1:nx,:),'econ');
     [Uh,Sh,Vh] = svd(Data.Data_ph{i}(1:nx,:),'econ');
@@ -143,4 +133,33 @@ Data_ref = load("snapshots_FN_model/snapshot_N_501.mat")
 Data_ref = Data_ref.data_u(1:501);
 mh = 100;
 maxsteps = 30;
-FN_interpolate_update(Udata, dUdata, Data_ref, 0.03:0.01:0.08, mh, psel, maxsteps);
+[E_lag_loc,E_lag_norm, E_herm_loc, E_herm_norm,points] = FN_interpolate_update(Udata, dUdata, Data_ref, 0.03:0.01:0.08, mh, psel, maxsteps);
+
+%%
+
+f = figure;
+f.Position = [40,800,1200*6/5,650*5/5];
+set(f, 'DefaultTextInterpreter', 'latex')
+
+subplot(1,2,1)
+plot(points,E_lag_loc,'LineWidth',3)
+hold on
+plot(points,E_lag_norm,'--','LineWidth',3)
+xlabel("$I_a$")
+ylabel("Rel. error")
+title("Error (Lagrange)")
+legend('CCCs','RN')
+
+
+subplot(1,2,2)
+hold on
+plot(points,E_herm_loc,'LineWidth',3)
+plot(points,E_herm_norm,'--','LineWidth',3)
+xlabel("$I_a$")
+ylabel("Rel. error")
+legend('CCCs','RN')
+title("Error (Hermite)")
+fontsize(f,18,"points")
+
+exportgraphics(f,"experiment_2.png","Resolution",600);
+%sgtitle("Relative interpolation errors")

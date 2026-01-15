@@ -527,15 +527,27 @@ end
 end
 
 MatTools.applyWYT = @appplyWYT;
-function PU = appplyWYT(U,W,Y)
-    PU = U + Y*(W'*U);
+function QU = appplyWYT(U,W,Y)
+    QU = U + Y*(W'*U);
 end
 
 MatTools.applyWY = @appplyWY;
-function PU = appplyWY(U,W,Y)
-    PU = U + W*(Y'*U);
+function QU = appplyWY(U,W,Y)
+    QU = U + W*(Y'*U);
 end
 
+MatTools.findOptQ = @optimalQ;
+function [W,Y] = optimalQ(U1,U2,W1,Y1,W2,Y2)
+    % Find the optimal Q = I + YW'.
+    Q1U1 = appplyWYT(U1,W1,Y1);
+    Q1U2 = appplyWYT(U2,W1,Y1);
+    Q2U1 = appplyWYT(U1,W2,Y2);
+    Q2U2 = appplyWYT(U2,W2,Y2);
 
+    [~,p] = size(U1);
+    for i = 1:4
+         
+    end
+end
 
 end

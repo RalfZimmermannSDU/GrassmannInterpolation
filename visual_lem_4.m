@@ -7,7 +7,11 @@ p = 20;
 M = matrix_tools();
 
 U = M.RandG(n,p);
+
+
+
 Delta = M.vectorG(U);
+&Delta = (Delta*U' + U*Delta')*U;
 
 Delta = Delta/(norm(Delta,'fro')*0.5);
 
@@ -24,12 +28,12 @@ for i = 1:100
     eucl(i) = norm(U-V,'fro');
     loc_eucl(i) = norm(B - Btilde,'fro');
 end
-
+%%
 f = figure;
-f.Position = [40,800,1200*5/6,650*5/6];
-
+f.Position = [40,800,1200*5/7,650*4/7];
+set(f, 'DefaultTextInterpreter', 'latex')
 subplot(1,2,1)
-semilogy(man,loc_eucl,'LineWidth',2)
+semilogy(man,loc_eucl,'LineWidth',3)
 grid on
 hold on
 xlabel("Manifold distance")
@@ -40,7 +44,7 @@ title("Manifold dist vs. local coord dist.")
 [seucl,I] = sort(eucl,'ascend');
 
 subplot(1,2,2)
-semilogy(seucl,loc_eucl(I),'LineWidth',2);
+semilogy(seucl,loc_eucl(I),'LineWidth',3);
 grid on
 xlabel("Euclidean distance")
 ylabel("Distance between local coords")
