@@ -32,13 +32,13 @@ if routine_flag == "normal_lag"
     end
 
     % Interpolate
-    for i = 1:50
+    %for i = 1:50
     Y = LagrangeInt(t, time_data, tangent_data);
 
     % Map back to manifold 
     
         Y = Mat.ExpG(U,Y);
-    end
+    %end
     
 end
 
@@ -57,7 +57,7 @@ if routine_flag == "normal_herm"
     Delta_p = FDapprox(Mat, p, q, pdot, h);
     %norm(q'*Delta_p+Delta_p'*q,'fro')
     % Interpolate
-    for i = 1:50
+    %for i = 1:50
     Y = HermiteInterpol(xi, 0, Delta_p, qdot, time_data(1), time_data(2), t);
     
     % Check that Y is in the tangent space of q 
@@ -66,7 +66,7 @@ if routine_flag == "normal_herm"
     % Map back to manifold
     
     Y = Mat.ExpG(q,Y);
-    end
+    %end
     
     % Check that Y is a Stiefel matrix
     %norm(Y'*Y-eye(10),'fro')
@@ -89,7 +89,7 @@ if routine_flag == "local_lag"
     end
 
     % Interpolate 
-    for i = 1:50
+    %for i = 1:50
     Y = LagrangeInt(t, time_data, local_data);
 
     
@@ -98,7 +98,7 @@ if routine_flag == "local_lag"
 
     R = chol(eye(p) + Y'*Y);
     Y = [eye(p); Y] / (R);
-    end
+    %end
 end
 
 if routine_flag == "local_herm"
@@ -117,7 +117,7 @@ if routine_flag == "local_herm"
     lqdot = Mat.dLocalCoordG(q,qdot,n,k);
     
     % Interpolate
-    for i = 1:50
+    %for i = 1:50
     Y = HermiteInterpol(lp, lq, lpdot, lqdot,time_data(1), time_data(2), t);
    
     %[Y,~] = qr([eye(p); Y],'econ');
@@ -125,7 +125,7 @@ if routine_flag == "local_herm"
 
     R = chol(eye(k) + Y'*Y);
     Y = [eye(k); Y] / R;
-    end
+    %end
 end
 
 end

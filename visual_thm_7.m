@@ -40,7 +40,7 @@ f = @(x) asin(bound * x);
 
 fig = figure;
 set(fig, 'DefaultTextInterpreter', 'latex')
-fig.Position = [40,800,1200*6/5,650*5/5];
+fig.Position = [40,800,1200*6/5,600*5/5];
 subplot(1,2,1)
 plot(norm_local,dist_man(I),'*','LineWidth',3)
 hold on
@@ -99,6 +99,8 @@ ylabel("Distance on manifold")
 fontsize(fig,18,"points")
 title("n = 10, p = 4")
 grid on
+
+fontsize(fig,25,"pixels")
 legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
 
@@ -106,7 +108,7 @@ legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
 
 %%
-exportgraphics(fig,"theorem_7.png","Resolution",600);
+exportgraphics(fig,"fig3.png","Resolution",600);
 
 
 

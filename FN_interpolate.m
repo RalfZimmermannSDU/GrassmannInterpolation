@@ -58,22 +58,13 @@ end
 % One has to selet the permutation matrix resulting in the smallest maximal
 % conditon number, for each pair of consecutive data points. 
 % For this example, it is seen that it makes no large difference if one
-% chooses the P obtained at entry s = 1 or s = 2. Choose s = 1.
+% chooses the P obtained at entry s = 1 or s = 2. Choose s = 2.
 conds = zeros(l,4);
-P = cell(1,l-1);
 W = cell(1,l-1);
 Y = cell(1,l-1);
 for i = 1:(l-1)
     ss = i:(i+1);
-    Ps = cell(1,2);
-    for s = 1:2
-        [~,Ps{s}] = maxvol(Data{ss(s)},maxsteps);
-        %conds(i,s) = cond(Data{ss(s)}(1:p,1:p),'fro');
-        PU = Ps{s}*Data{ss(1)};
-        conds(i,(s-1)*2+1) = cond(PU(1:p,1:p) ,'fro');
-        PU = Ps{s}*Data{ss(2)};
-        conds(i,(s-1)*2+2) = cond(PU(1:p,1:p),'fro');
-    end
+
     %P{i} = Ps{1};
     %P{i} = Ps{2};
     [UQ,R,Q] = M.house_qr(Data{ss(2)});

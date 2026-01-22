@@ -40,7 +40,7 @@ plot(ts,e1s,'-','LineWidth',lw)
 hold on
 plot(ts,e2s,'--','LineWidth',lw)
 plot(ts,e3s,'-.','LineWidth',lw)
-legend("CCCs","Local coords","Normal coords",'Interpreter','latex')
+legend("CCCs","Std. local coords","Normal coords",'Interpreter','latex')
 title("Error (Lagrange)",'Interpreter','latex')
 
 xlabel("t",'Interpreter','latex')
@@ -55,9 +55,9 @@ plot(ts,e33s,'-.','LineWidth',lw)
 xlabel("t",'Interpreter','latex')
 ylabel("Rel. error",'Interpreter','latex')
 
-legend("CCCs","Local coords","Normal coords",'Interpreter','latex')
+legend("CCCs","Std. local coords","Normal coords",'Interpreter','latex')
 title("Error (Hermite)",'Interpreter','latex')
-fontsize(18,"points")
+fontsize(20,"points")
 %%
 %exportgraphics(f,"fig_4.png","Resolution",600)
 
@@ -133,7 +133,7 @@ Data_ref = load("snapshots_FN_model/snapshot_N_501.mat")
 Data_ref = Data_ref.data_u(1:501);
 mh = 100;
 maxsteps = 30;
-[E_lag_loc,E_lag_norm, E_herm_loc, E_herm_norm,points] = FN_interpolate_update(Udata, dUdata, Data_ref, 0.03:0.01:0.08, mh, psel, maxsteps);
+[E_lag_loc,E_lag_norm, E_herm_loc, E_herm_norm,points] = FN_interpolate(Udata, dUdata, Data_ref, 0.03:0.01:0.08, mh, psel, maxsteps);
 
 %%
 
@@ -159,7 +159,7 @@ xlabel("$I_a$")
 ylabel("Rel. error")
 legend('CCCs','RN')
 title("Error (Hermite)")
-fontsize(f,18,"points")
+fontsize(f,20,"points")
 
 exportgraphics(f,"experiment_2.png","Resolution",600);
 %sgtitle("Relative interpolation errors")

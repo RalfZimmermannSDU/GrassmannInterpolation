@@ -7,13 +7,14 @@ p = 20;
 M = matrix_tools();
 
 U = M.RandG(n,p);
-
-
+[UQ,R,Q] = M.house_qr(U);
+[W,Y] = M.house_block(UQ);
+U = M.applyWYT(U,W,Y);
 
 Delta = M.vectorG(U);
-&Delta = (Delta*U' + U*Delta')*U;
+Delta = (Delta*U' + U*Delta')*U;
 
-Delta = Delta/(norm(Delta,'fro')*0.5);
+Delta = Delta/(norm(Delta));
 
 B = M.LocalCoordG(U,n,p);
 

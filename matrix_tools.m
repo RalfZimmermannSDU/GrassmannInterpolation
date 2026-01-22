@@ -506,8 +506,8 @@ function [W,Y] = house_block(U)
 % low rank representation of Q-factor of QR  
 % from Householder approach
 %
-% implementation follows Golub/Van Loan/3rd edition,
-% Algorithm 5.1.2, p. 214
+% implementation follows Golub/Van Loan/4th edition,
+% Algorithm 5.1.2, p. 239
 %
 
 [n,k] = size(U);
@@ -515,11 +515,11 @@ function [W,Y] = house_block(U)
 W = zeros(n,k);
 Y = zeros(n,k);
 
-W(:,1) = -U(:,1);
+W(:,1) = U(:,1);
 Y(:,1) =  U(:,1);
 for j=2:k
     % compute z = -Q*U(:,j) = -(I+WY')*U(:,j)
-    z      = -(U(:,j)+W(:,1:j-1)*(Y(:,1:j-1)'*U(:,j)));
+    z      = (U(:,j)-W(:,1:j-1)*(Y(:,1:j-1)'*U(:,j)));
     W(:,j) = z;
     Y(:,j) = U(:,j);
 end
@@ -528,12 +528,12 @@ end
 
 MatTools.applyWYT = @appplyWYT;
 function QU = appplyWYT(U,W,Y)
-    QU = U + Y*(W'*U);
+    QU = U - Y*(W'*U);
 end
 
 MatTools.applyWY = @appplyWY;
 function QU = appplyWY(U,W,Y)
-    QU = U + W*(Y'*U);
+    QU = U - W*(Y'*U);
 end
 
 MatTools.findOptQ = @optimalQ;
