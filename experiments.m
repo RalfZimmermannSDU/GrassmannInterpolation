@@ -36,27 +36,27 @@ f.Position = [40,800,1200*6/5,650*5/5];
 set(f, 'DefaultTextInterpreter', 'latex')
 lw = 3;
 subplot(1,2,1)
-plot(ts,e1s,'-','LineWidth',lw)
+plot(ts,e1s,':','LineWidth',lw)
 hold on
-plot(ts,e2s,'--','LineWidth',lw)
-plot(ts,e3s,'-.','LineWidth',lw)
-legend("CCCs","Std. local coords","Normal coords",'Interpreter','latex')
-title("Error (Lagrange)",'Interpreter','latex')
+plot(ts,e2s,'--','LineWidth',lw,'Color','red')
+plot(ts,e3s,'LineWidth',lw,'Color','#DD5400')
+legend("CCCs","Raw coords","Normal coords")
+title("Error (Lagrange)"')
 
-xlabel("t",'Interpreter','latex')
-ylabel("Rel. error",'Interpreter','latex')
+xlabel("t")
+ylabel("Rel. error")
 
 subplot(1,2,2)
-plot(ts,e11s,'-','LineWidth',lw)
+plot(ts,e11s,':','LineWidth',lw)
 hold on
-plot(ts,e22s,'--','LineWidth',lw)
+plot(ts,e22s,'--','LineWidth',lw,'Color','red')
 hold on
-plot(ts,e33s,'-.','LineWidth',lw)
-xlabel("t",'Interpreter','latex')
-ylabel("Rel. error",'Interpreter','latex')
+plot(ts,e33s,'LineWidth',lw,'Color','#DD5400')
+xlabel("t")
+ylabel("Rel. error")
 
-legend("CCCs","Std. local coords","Normal coords",'Interpreter','latex')
-title("Error (Hermite)",'Interpreter','latex')
+legend("CCCs","Raw coords","Normal coords")
+title("Error (Hermite)")
 fontsize(20,"points")
 %%
 %exportgraphics(f,"fig_4.png","Resolution",600)
@@ -142,7 +142,7 @@ f.Position = [40,800,1200*6/5,650*5/5];
 set(f, 'DefaultTextInterpreter', 'latex')
 
 subplot(1,2,1)
-plot(points,E_lag_loc,'LineWidth',3)
+plot(points,E_lag_loc,':','LineWidth',4)
 hold on
 plot(points,E_lag_norm,'--','LineWidth',3)
 xlabel("$I_a$")
@@ -153,7 +153,7 @@ legend('CCCs','RN')
 
 subplot(1,2,2)
 hold on
-plot(points,E_herm_loc,'LineWidth',3)
+plot(points,E_herm_loc,':','LineWidth',4)
 plot(points,E_herm_norm,'--','LineWidth',3)
 xlabel("$I_a$")
 ylabel("Rel. error")

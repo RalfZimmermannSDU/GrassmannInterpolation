@@ -44,8 +44,8 @@ if LoR == "L"
     
     Data_P{1} = M.applyWYT(Data{1},W,Y);
     Data_P{2} = M.applyWYT(Data{2},W,Y);
-    dData_P{1} = M.applyWYT(dData{1},W,Y)
-    dData_P{2} = M.applyWYT(dData{2},W,Y)
+    dData_P{1} = M.applyWYT(dData{1},W,Y);
+    dData_P{2} = M.applyWYT(dData{2},W,Y);
 else
     %[~,P] = maxvol(Data{2},maxsteps);
     % Data_P{1} = P*Data{1};

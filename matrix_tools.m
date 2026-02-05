@@ -118,7 +118,19 @@ MatTools.ExpG = @ExpGrassmann;
     end
 
 MatTools.dExpG = @dExpGrassmann;
-    function D = dExpGrassmann()
+    function D = dExpGrassmann(U,dir,dirtilde)
+        % dir = Delta * t
+        % dirtilde must be horizontal!
+
+        [Q,S,V] = svd(dir,'econ');
+        Scos = diag(cos(diag(S)));
+        Ssin = diag(sin(diag(S)));
+
+        %[Qd,Sd,Vd] = svd(dirtilde,'econ');
+        
+        [dQd,dSd,dVd] = dSVD2(Qd,Sd,Vd,dirtilde)
+
+        Y = U * (V*Scos * V') + Q * (Ssin * V');
 
     end
 
@@ -338,7 +350,7 @@ function [dU,dS,dV] = dSVD2(U,S,V,dY)
             for j = 1:r
                 if (i ~= j) && (i <= r)
                     if abs(S(i)-S(j))<10e-10
-                        error("The singular values are too close.")
+                        %error("The singular values are too close.")
                     end
                     Gamma(i,j) = S(i)*U(:,i)'*dY*V(:,j) + S(j)*U(:,j)'*dY*V(:,i);
                     Gamma(i,j) = Gamma(i,j) / ((S(j) + S(i))*(S(j)-S(i)));
