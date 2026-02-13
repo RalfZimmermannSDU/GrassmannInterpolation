@@ -56,6 +56,7 @@ if routine_flag == "normal_herm"
     h = 0.001;
     Delta_p = FDapprox(Mat, p, q, pdot, h);
     %norm(q'*Delta_p+Delta_p'*q,'fro')
+    
     % Interpolate
     %for i = 1:50
     Y = HermiteInterpol(xi, 0, Delta_p, qdot, time_data(1), time_data(2), t);

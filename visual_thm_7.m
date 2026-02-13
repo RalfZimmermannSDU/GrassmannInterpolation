@@ -51,7 +51,7 @@ ylabel("Distance on manifold")
 %fontsize(fig,18,"pixels")
 title("n = 500, p = 10")
 grid on
-legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
+legend("Manifold distance","f(x) = arcsin(M \cdot ||B-B_i||)")
 
 
 n = 10;
@@ -100,9 +100,9 @@ fontsize(fig,18,"points")
 title("n = 10, p = 4")
 grid on
 
-fontsize(fig,25,"pixels")
-legend("True manifold distance","f(x) = arcsin(C \cdot ||B-B_i||)")
 
+legend("Manifold distance","f(x) = arcsin(M \cdot ||B-B_i||)")
+fontsize(fig,25,"pixels")
 
 
 
